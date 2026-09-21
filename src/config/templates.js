@@ -411,6 +411,295 @@ export const TEMPLATES = [
         }
       }
     ]
+  },
+  {
+    id: "love-booth-05",
+    name: "Love Booth & Time Capsule 📸",
+    description: "ตู้สติกเกอร์เกาหลี 4 ช่อง (Photo Strip) พร้อมแคปซูลกาลเวลาและสถิติความทรงจำสุดคิ้วท์",
+    category: "ANNIVERSARY",
+    isPremium: false,
+    thumbnail: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&auto=format&fit=crop&q=80",
+    theme: {
+      backgroundColor: "#FFF5F8",
+      textColor: "#2D1B28",
+      accentColor: "#E0368B",
+      headingFont: "Mali",
+      bodyFont: "Noto Sans Thai"
+    },
+    sections: [
+      {
+        id: "sec-lb-hero",
+        type: "HERO",
+        name: "ข้อความต้อนรับโฟโต้บูธ",
+        enabled: true,
+        order: 1,
+        content: {
+          title: "Love Booth & Memory Capsule 📸💕",
+          subtitle: "ตู้สติกเกอร์บันทึกทุกรอยยิ้ม และแคปซูลกาลเวลาแห่งความสุขของเราสองคน",
+          badge: "✨ Photo Booth Edition",
+          imageURL: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=900&auto=format&fit=crop&q=80",
+          buttonText: "เปิดดูรูปในตู้สติกเกอร์",
+          buttonTarget: "sec-lb-gallery"
+        },
+        styles: {
+          alignment: "center",
+          backgroundColor: "transparent",
+          textColor: "#2D1B28"
+        },
+        animation: { type: "fade", duration: 600 }
+      },
+      {
+        id: "sec-lb-gallery",
+        type: "GALLERY",
+        name: "โฟโต้บูธ 4 ช่อง (Photo Strip)",
+        enabled: true,
+        order: 2,
+        content: {
+          title: "Photo Strip Memories 🎞️",
+          subtitle: "สแนปช็อตรอยยิ้ม 4 ช็อตสุดน่ารักที่ไม่มีวันลืม",
+          images: [
+            {
+              url: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600&auto=format&fit=crop&q=80",
+              caption: "Shot 1: เจอกันครั้งแรก ยิ้มเขินๆ 🌹"
+            },
+            {
+              url: "https://images.unsplash.com/photo-1513151233558-d860c5398176?w=600&auto=format&fit=crop&q=80",
+              caption: "Shot 2: หัวเราะจนแก้มปริ 🎈"
+            },
+            {
+              url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80",
+              caption: "Shot 3: สบตากันใต้หมอกหนาว ⛰️"
+            },
+            {
+              url: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&auto=format&fit=crop&q=80",
+              caption: "Shot 4: ยิ้มกว้างไปด้วยกันตลอดไป ✨"
+            }
+          ]
+        },
+        styles: {
+          backgroundColor: "#FFFFFF"
+        },
+        animation: { type: "scale", duration: 600 }
+      },
+      {
+        id: "sec-lb-timeline",
+        type: "TIMELINE",
+        name: "แคปซูลกาลเวลา (Time Capsule)",
+        enabled: true,
+        order: 3,
+        content: {
+          title: "Time Capsule Timeline ⏳💌",
+          subtitle: "ช่วงเวลาสำคัญที่ถูกบันทึกและล็อกไว้ในแคปซูล",
+          events: [
+            {
+              date: "2025-11-20",
+              title: "เปิดแคปซูลบทแรก ☕",
+              description: "วันแรกที่ได้นั่งคุยกันเรื่องหนังสือในร้านกาแฟ จุดเริ่มต้นของทุกสิ่ง",
+              image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600"
+            },
+            {
+              date: "2026-01-02",
+              title: "ทริปสัมผัสลมหนาว ⛰️",
+              description: "กุมมือกันดูหมอกและพระอาทิตย์ขึ้นดอยอินทนนท์ อากาศหนาวแต่ใจอุ่นมาก",
+              image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600"
+            },
+            {
+              date: "2026-02-14",
+              title: "วาเลนไทน์ดินเนอร์ 🌹",
+              description: "มอบช่อดอกกุหลาบสีชมพูพร้อมคำสัญญาจากหัวใจว่าจะดูแลกันอย่างดีที่สุด",
+              image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600"
+            }
+          ]
+        },
+        styles: {
+          backgroundColor: "transparent"
+        },
+        animation: { type: "slideUp", duration: 700 }
+      },
+      {
+        id: "sec-lb-stats",
+        type: "MEMORY_STATISTICS",
+        name: "สถิติความรักของเรา",
+        enabled: true,
+        order: 4,
+        content: {
+          title: "Love Statistics 📊❤️",
+          subtitle: "ตัวเลขความสุขและความผูกพันที่เราสร้างขึ้นด้วยกัน",
+          stats: [
+            { label: "รูปถ่ายคู่กัน", value: "1,420+", icon: "Camera" },
+            { label: "ชั่วโมงที่คุยกัน", value: "3,890", icon: "Clock" },
+            { label: "ทริปที่ไปด้วยกัน", value: "12 ทริป", icon: "MapPin" },
+            { label: "ความรักที่มีให้", value: "100% เต็ม", icon: "Heart" }
+          ]
+        },
+        styles: {
+          backgroundColor: "#FFFFFF"
+        },
+        animation: { type: "fade", duration: 600 }
+      },
+      {
+        id: "sec-lb-secret",
+        type: "SECRET_MESSAGE",
+        name: "ข้อความลับในแคปซูล",
+        enabled: true,
+        order: 5,
+        content: {
+          title: "กล่องความรู้สึกลับในแคปซูล 🎁",
+          hint: "แตะเพื่อเปิดฝาแคปซูลอ่านข้อความพิเศษ",
+          secret: "ขอบคุณที่เข้ามาเป็นความสดใสและรอยยิ้มในทุกวันนะ สัญญาว่าจะจับมือเธอไว้แน่นๆ แบบนี้ตลอดไป รักนะคะ 💕"
+        },
+        styles: {
+          backgroundColor: "transparent"
+        },
+        animation: { type: "scale", duration: 600 }
+      },
+      {
+        id: "sec-lb-footer",
+        type: "FOOTER",
+        name: "ส่วนท้าย",
+        enabled: true,
+        order: 6,
+        content: {
+          text: "Stored Forever in Love Booth & Memory Capsule 💕",
+          subtext: "สร้างด้วย ILOVE Memory Website Builder"
+        },
+        styles: {
+          backgroundColor: "transparent"
+        }
+      }
+    ]
+  },
+  {
+    id: "velvet-neon-06",
+    name: "Velvet Neon Romance & Surprise 🌌",
+    description: "ธีมดาร์กนีออนเวลเวทสุดหรู พร้อม Love Time Counter, จดหมายพิมพ์ดีด และซองของขวัญดิจิทัลเซอร์ไพรส์",
+    category: "SURPRISE",
+    isPremium: true,
+    thumbnail: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600&auto=format&fit=crop&q=80",
+    theme: {
+      backgroundColor: "#0F071D",
+      textColor: "#F3E8FF",
+      accentColor: "#F43F5E",
+      headingFont: "Pridi",
+      bodyFont: "Noto Sans Thai"
+    },
+    sections: [
+      {
+        id: "sec-vn-hero",
+        type: "HERO",
+        name: "ข้อความต้อนรับนีออน",
+        enabled: true,
+        order: 1,
+        content: {
+          title: "Happy Anniversary ที่รักของเค้า 🌌💖",
+          subtitle: "ของขวัญเซอร์ไพรส์ชิ้นพิเศษที่ตั้งใจทำไว้ให้เธอคนเดียวในจักรวาลนี้",
+          badge: "✨ Velvet Neon Edition",
+          imageURL: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=900&auto=format&fit=crop&q=80",
+          buttonText: "เปิดรับของขวัญเซอร์ไพรส์",
+          buttonTarget: "sec-vn-counter"
+        },
+        styles: {
+          alignment: "center",
+          backgroundColor: "transparent",
+          textColor: "#F3E8FF"
+        },
+        animation: { type: "fade", duration: 600 }
+      },
+      {
+        id: "sec-vn-counter",
+        type: "COUNTDOWN",
+        name: "Love Time Counter (เรารักกันมาแล้ว)",
+        enabled: true,
+        order: 2,
+        content: {
+          title: "LOVE TIME COUNTER ⏱️",
+          subtitle: "เรารัก ดูแล และมีความสุขร่วมกันมาแล้วเป็นเวลา",
+          startDate: "2025-02-14T09:38:00+07:00",
+          mode: "COUNT_UP"
+        },
+        styles: {
+          backgroundColor: "rgba(30, 16, 45, 0.7)"
+        },
+        animation: { type: "scale", duration: 600 }
+      },
+      {
+        id: "sec-vn-letter",
+        type: "MESSAGE",
+        name: "จดหมายรักพิมพ์ดีด (Typewriter Letter)",
+        enabled: true,
+        order: 3,
+        content: {
+          heading: "สุขสันต์วันครบรอบนะคะคนเก่ง 💌",
+          message: "ขอบคุณสำหรับรอยยิ้ม ความน่ารัก และความอบอุ่นที่มีให้กันในทุกๆ วัน ไม่ว่าจะผ่านเรื่องอะไรมา เค้าสัญญาว่าจะคอยอยู่เคียงข้าง และรักเธอเพิ่มขึ้นในทุกๆ วันนะ รักเธอที่สุดเลยค่ะ 🥰",
+          author: "จาก... เค้าเองคนดี ❤️",
+          date: "ตลอดไปและตลอดกาล"
+        },
+        styles: {
+          backgroundColor: "rgba(30, 16, 45, 0.8)",
+          textColor: "#F3E8FF"
+        },
+        animation: { type: "slideUp", duration: 700 }
+      },
+      {
+        id: "sec-vn-gift",
+        type: "SECRET_MESSAGE",
+        name: "ซองของขวัญเซอร์ไพรส์ (Gift Voucher)",
+        enabled: true,
+        order: 4,
+        content: {
+          title: "ซองของขวัญเซอร์ไพรส์สำหรับคนเก่ง 🎁🧧",
+          hint: "แตะเพื่อเปิดซองของขวัญและคูปองพิเศษ",
+          secret: "🎉 ยินดีด้วยค่ะ! ได้รับคูปองพิเศษ: 'ตามใจแฟน 1 วันเต็ม + บุฟเฟต์ของหวานไม่อั้น!' พร้อมซองของขวัญพิเศษจากใจเค้าเลย 💕"
+        },
+        styles: {
+          backgroundColor: "transparent"
+        },
+        animation: { type: "scale", duration: 600 }
+      },
+      {
+        id: "sec-vn-gallery",
+        type: "GALLERY",
+        name: "แกลเลอรี่ความทรงจำใต้แสงนีออน",
+        enabled: true,
+        order: 5,
+        content: {
+          title: "Our Memories Under the Stars 🌟",
+          subtitle: "ทุกความทรงจำคือแสงสว่างที่งดงามที่สุดในใจ",
+          images: [
+            {
+              url: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600&auto=format&fit=crop&q=80",
+              caption: "แสงเทียนและดอกไม้ในค่ำคืนวันสำคัญ 🌹"
+            },
+            {
+              url: "https://images.unsplash.com/photo-1513151233558-d860c5398176?w=600&auto=format&fit=crop&q=80",
+              caption: "รอยยิ้มวันครบรอบที่สดใสที่สุด 🎈"
+            },
+            {
+              url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80",
+              caption: "ท้องฟ้าและพระอาทิตย์ตกริมทะเลด้วยกัน 🌅"
+            }
+          ]
+        },
+        styles: {
+          backgroundColor: "rgba(30, 16, 45, 0.7)"
+        },
+        animation: { type: "fade", duration: 600 }
+      },
+      {
+        id: "sec-vn-footer",
+        type: "FOOTER",
+        name: "ส่วนท้าย",
+        enabled: true,
+        order: 6,
+        content: {
+          text: "Loved You Yesterday, Love You Still, Always Have, Always Will 🌌💖",
+          subtext: "สร้างด้วย ILOVE Memory Website Builder"
+        },
+        styles: {
+          backgroundColor: "transparent"
+        }
+      }
+    ]
   }
 ];
 
