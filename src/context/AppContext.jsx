@@ -11,8 +11,20 @@ import {
   subscribeToAuth
 } from "../services/auth";
 import {
+  saveProjectToFirestore,
+  fetchUserProjectsFromFirestore,
+  deleteProjectFromFirestore,
   savePublishedSiteToFirestore,
-  fetchPublishedSiteFromFirestore
+  fetchPublishedSiteFromFirestore,
+  unpublishSiteInFirestore,
+  saveUserProfileToFirestore,
+  fetchUserProfileFromFirestore,
+  saveMemoryToFirestore,
+  fetchUserMemoriesFromFirestore,
+  deleteMemoryFromFirestore,
+  saveImportantDateToFirestore,
+  fetchUserImportantDatesFromFirestore,
+  deleteImportantDateFromFirestore
 } from "../services/firestore";
 
 const AppContext = createContext(null);
@@ -290,22 +302,65 @@ export function AppProvider({ children }) {
   // 6. Toasts
   const [toasts, setToasts] = useState([]);
 
-  // Firebase Auth State Listener
+  // Firebase Auth State Listener & Cloud Sync
   useEffect(() => {
-    const unsubscribe = subscribeToAuth((firebaseUser) => {
+    const unsubscribe = subscribeToAuth(async (firebaseUser) => {
       if (firebaseUser) {
-        setCurrentUser((prev) => ({
+        // 1. Fetch remote user profile or create one
+        let remoteProfile = await fetchUserProfileFromFirestore(firebaseUser.uid);
+        const isAdminEmail =
+          firebaseUser.email === "admin@ilove.app" ||
+          (firebaseUser.email && firebaseUser.email.toLowerCase().startsWith("admin"));
+
+        const userRole = remoteProfile?.role || (isAdminEmail ? "ADMIN" : "USER");
+        const userPlan = remoteProfile?.plan || "FREE";
+        const userStorage = remoteProfile?.storageUsedMB ?? 0;
+        const userTotalStorage = remoteProfile?.storageTotalMB || (userPlan === "FREE" ? 100 : 5000);
+
+        const userData = {
           uid: firebaseUser.uid,
-          name: firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split("@")[0] : (firebaseUser.isAnonymous ? "ผู้เยี่ยมชม (Guest)" : "คุณ")),
+          name:
+            firebaseUser.displayName ||
+            remoteProfile?.name ||
+            (firebaseUser.email ? firebaseUser.email.split("@")[0] : (firebaseUser.isAnonymous ? "ผู้เยี่ยมชม (Guest)" : "คุณ")),
           email: firebaseUser.email || (firebaseUser.isAnonymous ? "guest@ilove.app" : ""),
-          photoURL: firebaseUser.photoURL || prev?.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160",
-          plan: prev?.plan || "FREE",
-          role: prev?.role || "USER",
+          photoURL:
+            firebaseUser.photoURL ||
+            remoteProfile?.photoURL ||
+            "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160",
+          plan: userPlan,
+          role: userRole,
           isAnonymous: firebaseUser.isAnonymous,
-          storageUsedMB: prev?.storageUsedMB || 38,
-          storageTotalMB: prev?.storageTotalMB || 100,
-          createdAt: firebaseUser.metadata?.creationTime || new Date().toISOString()
-        }));
+          storageUsedMB: userStorage,
+          storageTotalMB: userTotalStorage,
+          createdAt: firebaseUser.metadata?.creationTime || remoteProfile?.createdAt || new Date().toISOString()
+        };
+
+        setCurrentUser(userData);
+
+        // Ensure user document exists in Firestore
+        saveUserProfileToFirestore(firebaseUser.uid, userData);
+
+        // 2. Fetch Projects from Cloud Firestore
+        const remoteProjects = await fetchUserProjectsFromFirestore(firebaseUser.uid);
+        if (remoteProjects && remoteProjects.length > 0) {
+          setProjects(remoteProjects);
+          if (remoteProjects[0]?.id) {
+            setActiveProjectId(remoteProjects[0].id);
+          }
+        }
+
+        // 3. Fetch Memories from Cloud Firestore
+        const remoteMemories = await fetchUserMemoriesFromFirestore(firebaseUser.uid);
+        if (remoteMemories && remoteMemories.length > 0) {
+          setMemories(remoteMemories);
+        }
+
+        // 4. Fetch Important Dates from Cloud Firestore
+        const remoteDates = await fetchUserImportantDatesFromFirestore(firebaseUser.uid);
+        if (remoteDates && remoteDates.length > 0) {
+          setImportantDates(remoteDates);
+        }
       }
     });
     return () => unsubscribe();
@@ -430,12 +485,25 @@ export function AppProvider({ children }) {
   };
 
   const switchUserRole = (newRole) => {
-    setCurrentUser((prev) => prev ? { ...prev, role: newRole } : prev);
+    setCurrentUser((prev) => {
+      const updated = prev ? { ...prev, role: newRole } : prev;
+      if (prev?.uid && !prev.isAnonymous) {
+        saveUserProfileToFirestore(prev.uid, { role: newRole });
+      }
+      return updated;
+    });
     showToast(`เปลี่ยนสิทธิ์ผู้ใช้เป็น: ${newRole}`);
   };
 
   const switchUserPlan = (newPlan) => {
-    setCurrentUser((prev) => prev ? { ...prev, plan: newPlan } : prev);
+    const totalMB = newPlan === "FREE" ? 100 : 5000;
+    setCurrentUser((prev) => {
+      const updated = prev ? { ...prev, plan: newPlan, storageTotalMB: totalMB } : prev;
+      if (prev?.uid && !prev.isAnonymous) {
+        saveUserProfileToFirestore(prev.uid, { plan: newPlan, storageTotalMB: totalMB });
+      }
+      return updated;
+    });
     showToast(`ปรับเปลี่ยนแพ็กเกจเป็น: ${newPlan} เรียบร้อยแล้ว 🎉`);
   };
 
@@ -503,6 +571,9 @@ export function AppProvider({ children }) {
 
     setProjects((prev) => [newProject, ...prev]);
     setActiveProjectId(newProject.id);
+    if (currentUser?.uid && !currentUser.isAnonymous) {
+      saveProjectToFirestore(newProject);
+    }
     showToast("สร้างโปรเจกต์ใหม่สำเร็จ 🎉");
     return newProject;
   };
@@ -512,18 +583,24 @@ export function AppProvider({ children }) {
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
 
     const applyUpdate = () => {
+      let updatedProjectToSync = null;
       setProjects((prev) =>
         prev.map((p) => {
           if (p.id === activeProjectId) {
-            return {
+            const updated = {
               ...p,
               ...updatedFields,
               updatedAt: new Date().toISOString()
             };
+            updatedProjectToSync = updated;
+            return updated;
           }
           return p;
         })
       );
+      if (updatedProjectToSync && currentUser?.uid && !currentUser.isAnonymous) {
+        saveProjectToFirestore(updatedProjectToSync);
+      }
       setSaveStatus("saved");
     };
 
@@ -548,11 +625,17 @@ export function AppProvider({ children }) {
       updatedAt: new Date().toISOString()
     };
     setProjects((prev) => [duplicated, ...prev]);
+    if (currentUser?.uid && !currentUser.isAnonymous) {
+      saveProjectToFirestore(duplicated);
+    }
     showToast("ทำสำเนาเว็บไซต์เรียบร้อยแล้ว");
   };
 
   const deleteProject = (projectId) => {
     setProjects((prev) => prev.filter((p) => p.id !== projectId));
+    if (currentUser?.uid && !currentUser.isAnonymous) {
+      deleteProjectFromFirestore(projectId);
+    }
     showToast("ลบเว็บไซต์เรียบร้อยแล้ว", "info");
     if (activeProjectId === projectId) {
       const remaining = projects.filter((p) => p.id !== projectId);
@@ -561,14 +644,20 @@ export function AppProvider({ children }) {
   };
 
   const publishProject = (projectId, publishConfig) => {
+    let publishedSnapshot = null;
+    let finalProject = null;
+
     setProjects((prev) =>
       prev.map((p) => {
         if (p.id === projectId) {
-          const status = publishConfig.revealAt && new Date(publishConfig.revealAt) > new Date()
-            ? "SCHEDULED"
-            : (publishConfig.visibility === "PASSWORD" ? "PRIVATE" : "PUBLISHED");
+          const status =
+            publishConfig.revealAt && new Date(publishConfig.revealAt) > new Date()
+              ? "SCHEDULED"
+              : publishConfig.visibility === "PASSWORD"
+              ? "PRIVATE"
+              : "PUBLISHED";
 
-          return {
+          const updated = {
             ...p,
             slug: publishConfig.slug || p.slug,
             visibility: publishConfig.visibility,
@@ -580,18 +669,45 @@ export function AppProvider({ children }) {
             updatedAt: new Date().toISOString()
           };
           delete updated.password; // Prevent storing plaintext password
+          finalProject = updated;
+          publishedSnapshot = createSanitizedPublicSnapshot(updated);
           return updated;
         }
         return p;
       })
     );
+
+    // Sync to Cloud Firestore
+    if (publishedSnapshot && publishedSnapshot.slug) {
+      savePublishedSiteToFirestore(publishedSnapshot.slug, publishedSnapshot);
+    }
+    if (finalProject && currentUser?.uid && !currentUser.isAnonymous) {
+      saveProjectToFirestore(finalProject);
+    }
+
     showToast("เผยแพร่เว็บไซต์ของคุณเรียบร้อยแล้ว! 🎉");
   };
 
   const unpublishProject = (projectId) => {
+    let unpubProj = null;
     setProjects((prev) =>
-      prev.map((p) => (p.id === projectId ? { ...p, status: "DRAFT" } : p))
+      prev.map((p) => {
+        if (p.id === projectId) {
+          const updated = { ...p, status: "DRAFT", updatedAt: new Date().toISOString() };
+          unpubProj = updated;
+          return updated;
+        }
+        return p;
+      })
     );
+    if (unpubProj) {
+      if (unpubProj.slug) {
+        unpublishSiteInFirestore(unpubProj.slug);
+      }
+      if (currentUser?.uid && !currentUser.isAnonymous) {
+        saveProjectToFirestore(unpubProj);
+      }
+    }
     showToast("ยกเลิกการเผยแพร่เว็บไซต์แล้ว กลับสู่สถานะแบบร่าง", "info");
   };
 
@@ -609,12 +725,18 @@ export function AppProvider({ children }) {
       createdAt: new Date().toISOString()
     };
     setMemories((prev) => [newMemory, ...prev]);
+    if (currentUser?.uid && !currentUser.isAnonymous) {
+      saveMemoryToFirestore(newMemory, currentUser.uid);
+    }
     showToast("บันทึกความทรงจำใหม่เรียบร้อย ❤️");
     return newMemory;
   };
 
   const deleteMemory = (memoryId) => {
     setMemories((prev) => prev.filter((m) => m.id !== memoryId));
+    if (currentUser?.uid && !currentUser.isAnonymous) {
+      deleteMemoryFromFirestore(memoryId);
+    }
     showToast("ลบความทรงจำเรียบร้อยแล้ว", "info");
   };
 
@@ -724,12 +846,18 @@ export function AppProvider({ children }) {
       notes: dateData.notes || ""
     };
     setImportantDates((prev) => [...prev, newDate]);
+    if (currentUser?.uid && !currentUser.isAnonymous) {
+      saveImportantDateToFirestore(newDate, currentUser.uid);
+    }
     showToast("เพิ่มวันสำคัญเรียบร้อยแล้ว ✨");
     return newDate;
   };
 
   const deleteImportantDate = (dateId) => {
     setImportantDates((prev) => prev.filter((d) => d.id !== dateId));
+    if (currentUser?.uid && !currentUser.isAnonymous) {
+      deleteImportantDateFromFirestore(dateId, currentUser.uid);
+    }
     showToast("ลบวันสำคัญแล้ว", "info");
   };
 

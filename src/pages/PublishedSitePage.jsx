@@ -16,11 +16,38 @@ import {
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { verifyPassword } from "../utils/security";
+import { fetchPublishedSiteFromFirestore } from "../services/firestore";
 
 export function PublishedSitePage({ slug, onNavigateHome }) {
   const { getPublishedSiteBySlug } = useApp();
 
-  const project = getPublishedSiteBySlug(slug);
+  const localProject = getPublishedSiteBySlug(slug);
+  const [cloudProject, setCloudProject] = useState(null);
+  const [isLoadingCloud, setIsLoadingCloud] = useState(!localProject);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (!localProject && slug) {
+      setIsLoadingCloud(true);
+      fetchPublishedSiteFromFirestore(slug)
+        .then((remoteData) => {
+          if (isMounted) {
+            setCloudProject(remoteData);
+            setIsLoadingCloud(false);
+          }
+        })
+        .catch(() => {
+          if (isMounted) setIsLoadingCloud(false);
+        });
+    } else {
+      setIsLoadingCloud(false);
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [slug, localProject]);
+
+  const project = localProject || cloudProject;
 
   const [enteredPassword, setEnteredPassword] = useState("");
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -66,6 +93,31 @@ export function PublishedSitePage({ slug, onNavigateHome }) {
       return () => clearInterval(timer);
     }
   }, [lockoutSeconds]);
+
+  if (isLoadingCloud) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "20px",
+          textAlign: "center",
+          background: "var(--color-bg)"
+        }}
+      >
+        <div style={{ fontSize: "40px", marginBottom: "16px", animation: "pulse 1.5s infinite" }}>💖</div>
+        <h2 style={{ fontSize: "20px", color: "var(--color-text-primary)", fontWeight: 600, marginBottom: "8px" }}>
+          กำลังเปิดกล่องความทรงจำ...
+        </h2>
+        <p style={{ color: "var(--color-text-secondary)", fontSize: "14px" }}>
+          กำลังดึงข้อมูลเว็บไซต์จาก Cloud Storage
+        </p>
+      </div>
+    );
+  }
 
   if (!project) {
     return (

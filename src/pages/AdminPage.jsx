@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import { TEMPLATES } from "../config/templates";
 import {
@@ -17,8 +17,15 @@ import {
   Sliders,
   Sparkles,
   Activity,
-  ArrowRight
+  ArrowRight,
+  UserCheck,
+  UserX
 } from "lucide-react";
+import {
+  fetchAllUsersForAdmin,
+  updateUserStatusInFirestore,
+  updateUserRoleInFirestore
+} from "../services/firestore";
 
 export function AdminPage({ setActivePage }) {
   const { currentUser, projects, switchUserRole, switchUserPlan, showToast } = useApp();
@@ -170,14 +177,56 @@ export function AdminPage({ setActivePage }) {
     TEMPLATES.map((t) => ({ ...t, isActive: true }))
   );
 
+  // Sync registered users from Firestore
+  useEffect(() => {
+    let isMounted = true;
+    fetchAllUsersForAdmin().then((remoteUsers) => {
+      if (isMounted && remoteUsers && remoteUsers.length > 0) {
+        setUserList((prev) => {
+          const map = new Map();
+          prev.forEach((u) => map.set(u.uid, u));
+          remoteUsers.forEach((u) => {
+            map.set(u.uid, {
+              ...u,
+              name: u.name || (u.email ? u.email.split("@")[0] : "ผู้ใช้"),
+              projectsCount: u.projectsCount ?? 0,
+              storageMB: u.storageUsedMB ?? 0,
+              status: u.status || "ACTIVE"
+            });
+          });
+          return Array.from(map.values());
+        });
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Toggle user status
   const handleToggleUserStatus = (uid) => {
     setUserList((prev) =>
       prev.map((u) => {
         if (u.uid === uid) {
           const newStatus = u.status === "ACTIVE" ? "SUSPENDED" : "ACTIVE";
+          updateUserStatusInFirestore(uid, newStatus);
           showToast(`เปลี่ยนสถานะผู้ใช้ ${u.name} เป็น ${newStatus}`);
           return { ...u, status: newStatus };
+        }
+        return u;
+      })
+    );
+  };
+
+  // Toggle user role
+  const handleToggleUserRole = (uid) => {
+    setUserList((prev) =>
+      prev.map((u) => {
+        if (u.uid === uid) {
+          const newRole = u.role === "ADMIN" ? "USER" : "ADMIN";
+          updateUserRoleInFirestore(uid, newRole);
+          showToast(`เปลี่ยนบทบาทผู้ใช้ ${u.name} เป็น ${newRole}`);
+          return { ...u, role: newRole };
         }
         return u;
       })
@@ -421,7 +470,15 @@ export function AdminPage({ setActivePage }) {
                             </span>
                           )}
                         </td>
-                        <td style={{ padding: "16px", textAlign: "right" }}>
+                        <td style={{ padding: "16px", textAlign: "right", whiteSpace: "nowrap" }}>
+                          <button
+                            onClick={() => handleToggleUserRole(user.uid)}
+                            className="btn btn-ghost btn-sm"
+                            style={{ color: user.role === "ADMIN" ? "#D97706" : "#7C3AED", marginRight: "6px" }}
+                            title={user.role === "ADMIN" ? "ลดสิทธิ์เป็น USER" : "แต่งตั้งเป็น ADMIN"}
+                          >
+                            {user.role === "ADMIN" ? "ลดสิทธิ์" : "ตั้งเป็น Admin"}
+                          </button>
                           <button
                             onClick={() => handleToggleUserStatus(user.uid)}
                             className="btn btn-ghost btn-sm"
