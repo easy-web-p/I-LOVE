@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import confetti from "canvas-confetti";
 import {
   Heart,
@@ -8,6 +8,7 @@ import {
   Play,
   Pause,
   Volume2,
+  VolumeX,
   ChevronRight,
   ExternalLink,
   Clock,
@@ -22,6 +23,7 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { sanitizeUrl, getSafeVideoEmbedUrl } from "../../utils/security";
+import { ROMANTIC_AUDIO_PRESETS, formatAudioTime } from "../../utils/audio";
 
 export function SectionRenderer({
   section,
@@ -31,8 +33,14 @@ export function SectionRenderer({
   onSelect
 }) {
   const [revealedSecret, setRevealedSecret] = useState(false);
-  const [isPlayingMusic, setIsPlayingMusic] = useState(false);
   const [lightboxImg, setLightboxImg] = useState(null);
+
+  // Real HTML5 Audio Player State
+  const musicAudioRef = useRef(null);
+  const [isPlayingMusic, setIsPlayingMusic] = useState(false);
+  const [audioCurrentTime, setAudioCurrentTime] = useState(0);
+  const [audioDuration, setAudioDuration] = useState(0);
+  const [isAudioMuted, setIsAudioMuted] = useState(false);
 
   // Time Calculation for Countdown
   const [timeUnits, setTimeUnits] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -751,70 +759,188 @@ export function SectionRenderer({
       )}
 
       {/* 12. MUSIC PLAYER SECTION */}
-      {section.type === "MUSIC" && (
-        <div style={{ maxWidth: "560px", margin: "0 auto" }}>
-          <div
-            className="card"
-            style={{
-              padding: "24px 28px",
-              borderRadius: "var(--radius-lg)",
-              border: "1px solid var(--color-border)",
-              background: "linear-gradient(135deg, #FFF0F5 0%, #FFFFFF 100%)",
-              boxShadow: "var(--shadow-card)",
-              display: "flex",
-              alignItems: "center",
-              gap: "20px"
-            }}
-          >
+      {section.type === "MUSIC" && (() => {
+        const audioSrc = section.content.audioUrl || ROMANTIC_AUDIO_PRESETS[0].url;
+
+        const handleTogglePlayMusic = () => {
+          if (!musicAudioRef.current) return;
+          if (isPlayingMusic) {
+            musicAudioRef.current.pause();
+            setIsPlayingMusic(false);
+          } else {
+            musicAudioRef.current
+              .play()
+              .then(() => setIsPlayingMusic(true))
+              .catch((err) => console.warn("Audio play error:", err));
+          }
+        };
+
+        const handleSeekMusic = (e) => {
+          const val = parseFloat(e.target.value);
+          if (musicAudioRef.current) {
+            musicAudioRef.current.currentTime = val;
+            setAudioCurrentTime(val);
+          }
+        };
+
+        const handleToggleMuteMusic = (e) => {
+          e.stopPropagation();
+          if (musicAudioRef.current) {
+            musicAudioRef.current.muted = !isAudioMuted;
+            setIsAudioMuted(!isAudioMuted);
+          }
+        };
+
+        return (
+          <div style={{ maxWidth: "600px", margin: "0 auto" }}>
             <div
-              onClick={() => setIsPlayingMusic(!isPlayingMusic)}
+              className="card"
               style={{
-                width: "56px",
-                height: "56px",
-                borderRadius: "50%",
-                background: "var(--color-primary)",
-                color: "#FFF",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                boxShadow: "0 4px 14px rgba(232, 93, 142, 0.4)",
-                flexShrink: 0
+                padding: "24px 28px",
+                borderRadius: "var(--radius-lg)",
+                border: "1px solid var(--color-border)",
+                background: "linear-gradient(135deg, #FFF0F5 0%, #FFFFFF 100%)",
+                boxShadow: "var(--shadow-card)"
               }}
             >
-              {isPlayingMusic ? <Pause size={24} /> : <Play size={24} style={{ marginLeft: "3px" }} />}
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
-                <Music size={15} color="var(--color-primary)" />
-                <span style={{ fontSize: "12px", color: "var(--color-primary)", fontWeight: 600, textTransform: "uppercase" }}>
-                  เพลงประจำความทรงจำ
-                </span>
-              </div>
-              <h3 style={{ fontSize: "17px", fontWeight: 700, color: "var(--color-text-primary)", marginBottom: "2px" }}>
-                {section.content.title || "คู่ชีวิต (Our Song)"}
-              </h3>
-              <p style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}>
-                {section.content.artist || "Cocktail"}
-              </p>
-            </div>
-            <div style={{ display: "flex", gap: "3px", alignItems: "flex-end", height: "24px" }}>
-              {[12, 20, 15, 24, 18, 10].map((h, i) => (
-                <span
-                  key={i}
+              <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+                <button
+                  type="button"
+                  onClick={handleTogglePlayMusic}
                   style={{
-                    width: "3px",
-                    height: isPlayingMusic ? `${h}px` : "6px",
+                    width: "58px",
+                    height: "58px",
+                    borderRadius: "50%",
                     background: "var(--color-primary)",
-                    borderRadius: "2px",
-                    transition: "height 0.3s ease"
+                    color: "#FFF",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    boxShadow: "0 6px 18px rgba(232, 93, 142, 0.4)",
+                    flexShrink: 0,
+                    border: "none",
+                    outline: "none"
+                  }}
+                  aria-label={isPlayingMusic ? "Pause" : "Play"}
+                >
+                  {isPlayingMusic ? <Pause size={24} /> : <Play size={24} style={{ marginLeft: "3px" }} />}
+                </button>
+
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
+                    <Music size={15} color="var(--color-primary)" />
+                    <span style={{ fontSize: "11.5px", color: "var(--color-primary)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                      เพลงประจำความทรงจำ 🎵
+                    </span>
+                  </div>
+                  <h3
+                    style={{
+                      fontSize: "17px",
+                      fontWeight: 700,
+                      color: "var(--color-text-primary)",
+                      marginBottom: "2px",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis"
+                    }}
+                  >
+                    {section.content.title || "คู่ชีวิต (Our Song)"}
+                  </h3>
+                  <p style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}>
+                    {section.content.artist || "Cocktail"}
+                  </p>
+                </div>
+
+                {/* Animated Equalizer Waves & Mute Button */}
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div style={{ display: "flex", gap: "3px", alignItems: "flex-end", height: "24px" }}>
+                    {[12, 22, 16, 26, 18, 10].map((h, i) => (
+                      <span
+                        key={i}
+                        style={{
+                          width: "3px",
+                          height: isPlayingMusic ? `${h}px` : "6px",
+                          background: "var(--color-primary)",
+                          borderRadius: "2px",
+                          transition: "height 0.25s ease",
+                          opacity: isPlayingMusic ? 1 : 0.4
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="btn-icon"
+                    onClick={handleToggleMuteMusic}
+                    style={{ width: "32px", height: "32px", color: "var(--color-text-secondary)" }}
+                    title={isAudioMuted ? "เปิดเสียง" : "ปิดเสียง"}
+                  >
+                    {isAudioMuted ? <VolumeX size={17} /> : <Volume2 size={17} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Progress Scrubber Bar */}
+              <div style={{ marginTop: "18px" }}>
+                <input
+                  type="range"
+                  min="0"
+                  max={audioDuration || 100}
+                  step="0.1"
+                  value={audioCurrentTime}
+                  onChange={handleSeekMusic}
+                  style={{
+                    width: "100%",
+                    accentColor: "var(--color-primary)",
+                    cursor: "pointer",
+                    height: "4px"
                   }}
                 />
-              ))}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: "11px",
+                    color: "var(--color-text-muted)",
+                    marginTop: "4px",
+                    fontVariantNumeric: "tabular-nums"
+                  }}
+                >
+                  <span>{formatAudioTime(audioCurrentTime)}</span>
+                  <span>{audioDuration ? formatAudioTime(audioDuration) : "--:--"}</span>
+                </div>
+              </div>
+
+              {/* Real HTML5 Audio Element */}
+              <audio
+                ref={musicAudioRef}
+                src={audioSrc}
+                preload="metadata"
+                onTimeUpdate={() => {
+                  if (musicAudioRef.current) {
+                    setAudioCurrentTime(musicAudioRef.current.currentTime);
+                  }
+                }}
+                onLoadedMetadata={() => {
+                  if (musicAudioRef.current) {
+                    setAudioDuration(musicAudioRef.current.duration);
+                  }
+                }}
+                onEnded={() => {
+                  setIsPlayingMusic(false);
+                  setAudioCurrentTime(0);
+                }}
+                onError={(e) => {
+                  console.warn("Audio element failed to load track:", audioSrc, e);
+                  setIsPlayingMusic(false);
+                }}
+              />
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* 13. PERSON PROFILE SECTION */}
       {section.type === "PERSON_PROFILE" && (

@@ -57,18 +57,22 @@ export function PublishModal({ isOpen, onClose, project, onPublishedSuccess }) {
       slug: slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-"),
       visibility: visibility,
       passwordHash: passwordHash, // Store only secure hash, never plaintext
+      rawPassword: visibility === "PASSWORD" ? password : "",
       revealAt: revealMode === "SCHEDULED" ? new Date(revealDate).toISOString() : null,
       expiresAt: hasExpiry && expiryDate ? new Date(expiryDate).toISOString() : null
     };
 
-    setTimeout(() => {
-      publishProject(project.id, publishConfig);
+    try {
+      await publishProject(project.id, publishConfig);
       setLoading(false);
       onClose();
       if (onPublishedSuccess) {
         onPublishedSuccess(publishConfig.slug);
       }
-    }, 400);
+    } catch (err) {
+      setLoading(false);
+      showToast("เกิดข้อผิดพลาดในการเผยแพร่ กรุณาลองใหม่อีกครั้ง", "error");
+    }
   };
 
   return (

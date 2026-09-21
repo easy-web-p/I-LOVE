@@ -19,6 +19,100 @@ export async function hashPassword(text) {
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+function arrayBufferToHex(buffer) {
+  return Array.from(new Uint8Array(buffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function hexToArrayBuffer(hexString) {
+  const bytes = new Uint8Array(hexString.length / 2);
+  for (let i = 0; i < hexString.length; i += 2) {
+    bytes[i / 2] = parseInt(hexString.substr(i, 2), 16);
+  }
+  return bytes.buffer;
+}
+
+/**
+ * Derives an AES-GCM 256-bit encryption key from password and salt using PBKDF2.
+ */
+async function deriveKeyFromPassword(password, salt) {
+  const encoder = new TextEncoder();
+  const passwordKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveKey"]
+  );
+
+  return await crypto.subtle.deriveKey(
+    {
+      name: "PBKDF2",
+      salt: salt,
+      iterations: 100000,
+      hash: "SHA-256"
+    },
+    passwordKey,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"]
+  );
+}
+
+/**
+ * Encrypts an object or string payload using AES-GCM (256-bit).
+ * Returns { salt, iv, ciphertext } in hex representation.
+ */
+export async function encryptPayloadWithPassword(payload, password) {
+  if (!payload || !password) return null;
+  const encoder = new TextEncoder();
+  const rawData = encoder.encode(typeof payload === "string" ? payload : JSON.stringify(payload));
+  
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveKeyFromPassword(password, salt);
+
+  const encryptedBuffer = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    key,
+    rawData
+  );
+
+  return {
+    salt: arrayBufferToHex(salt),
+    iv: arrayBufferToHex(iv),
+    ciphertext: arrayBufferToHex(encryptedBuffer)
+  };
+}
+
+/**
+ * Decrypts an AES-GCM encrypted package using the entered password.
+ * Throws error or returns null if password is incorrect (integrity check fails).
+ */
+export async function decryptPayloadWithPassword(encryptedPackage, password) {
+  if (!encryptedPackage || !password) return null;
+  try {
+    const salt = new Uint8Array(hexToArrayBuffer(encryptedPackage.salt));
+    const iv = new Uint8Array(hexToArrayBuffer(encryptedPackage.iv));
+    const ciphertext = hexToArrayBuffer(encryptedPackage.ciphertext);
+
+    const key = await deriveKeyFromPassword(password, salt);
+    const decryptedBuffer = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv },
+      key,
+      ciphertext
+    );
+
+    const decoder = new TextDecoder();
+    const jsonString = decoder.decode(decryptedBuffer);
+    return JSON.parse(jsonString);
+  } catch (error) {
+    // Decryption failed: either corrupted or wrong password
+    return null;
+  }
+}
+
 /**
  * Securely verifies entered password against stored hash.
  * @param {string} enteredPassword 
@@ -113,8 +207,34 @@ export function getSafeVideoEmbedUrl(url) {
  * @param {Object} project - Private draft project
  * @returns {Object} Public-safe sanitized snapshot
  */
-export function createSanitizedPublicSnapshot(project) {
+export async function createSanitizedPublicSnapshot(project, rawPassword = "") {
   if (!project) return null;
+
+  const rawSections = (project.sections || [])
+    .filter((s) => s.enabled)
+    .map((s) => ({
+      id: s.id,
+      type: s.type,
+      name: s.name,
+      enabled: s.enabled,
+      order: s.order,
+      content: s.content,
+      styles: s.styles || {},
+      animation: s.animation || {}
+    }));
+
+  let sections = rawSections;
+  let encryptedPayload = null;
+  let isEncrypted = false;
+
+  // Zero-Knowledge Encryption for password-protected memory vaults
+  if (project.visibility === "PASSWORD" && rawPassword) {
+    encryptedPayload = await encryptPayloadWithPassword(rawSections, rawPassword);
+    if (encryptedPayload) {
+      isEncrypted = true;
+      sections = []; // Clean sections from public snapshot so no plaintext is leaked in DevTools
+    }
+  }
 
   return {
     id: project.id,
@@ -126,6 +246,8 @@ export function createSanitizedPublicSnapshot(project) {
     status: project.status,
     visibility: project.visibility || "UNLISTED",
     passwordHash: project.passwordHash || null, // Only store hash, never plaintext
+    isEncrypted,
+    encryptedPayload,
     views: project.views || 0,
     coverImage: sanitizeUrl(project.coverImage),
     theme: {
@@ -135,18 +257,7 @@ export function createSanitizedPublicSnapshot(project) {
       headingFont: project.theme?.headingFont || "Mali",
       bodyFont: project.theme?.bodyFont || "Noto Sans Thai"
     },
-    sections: (project.sections || [])
-      .filter((s) => s.enabled)
-      .map((s) => ({
-        id: s.id,
-        type: s.type,
-        name: s.name,
-        enabled: s.enabled,
-        order: s.order,
-        content: s.content,
-        styles: s.styles || {},
-        animation: s.animation || {}
-      })),
+    sections,
     revealAt: project.revealAt || null,
     expiresAt: project.expiresAt || null,
     publishedAt: project.publishedAt || new Date().toISOString()

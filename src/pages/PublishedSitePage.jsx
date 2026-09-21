@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useApp } from "../context/AppContext";
 import { SectionRenderer } from "../components/sections/SectionRenderer";
 import {
@@ -15,7 +15,9 @@ import {
   ArrowRight
 } from "lucide-react";
 import confetti from "canvas-confetti";
-import { verifyPassword } from "../utils/security";
+import { verifyPassword, decryptPayloadWithPassword } from "../utils/security";
+import { ROMANTIC_AUDIO_PRESETS } from "../utils/audio";
+import { updatePageMetadata } from "../utils/seo";
 import { fetchPublishedSiteFromFirestore } from "../services/firestore";
 
 export function PublishedSitePage({ slug, onNavigateHome }) {
@@ -51,13 +53,29 @@ export function PublishedSitePage({ slug, onNavigateHome }) {
 
   const [enteredPassword, setEnteredPassword] = useState("");
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const [decryptedSections, setDecryptedSections] = useState(null);
   const [passwordError, setPasswordError] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockoutSeconds, setLockoutSeconds] = useState(0);
 
-  // Audio player mock state
+  // Real Audio player state
+  const bgAudioRef = useRef(null);
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const [likeCount, setLikeCount] = useState(88);
+
+  // Dynamic SEO & OpenGraph tags
+  useEffect(() => {
+    if (project) {
+      const cleanup = updatePageMetadata({
+        title: project.title,
+        description: project.description || "ของขวัญความทรงจำแสนพิเศษสำหรับคนสำคัญ",
+        image: project.coverImage,
+        url: window.location.href
+      });
+      return cleanup;
+    }
+  }, [project]);
 
   // Countdown for Scheduled Reveal
   const [scheduledDiff, setScheduledDiff] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, isPast: false });
@@ -243,10 +261,28 @@ export function PublishedSitePage({ slug, onNavigateHome }) {
       e.preventDefault();
       if (lockoutSeconds > 0) return;
 
-      const isValid = await verifyPassword(enteredPassword.trim(), project.passwordHash);
-      const isLegacyValid = !project.passwordHash && project.password && enteredPassword.trim() === project.password.trim();
+      let isValid = false;
 
-      if (isValid || isLegacyValid) {
+      // 1. Zero-Knowledge Decryption
+      if (project.isEncrypted && project.encryptedPayload) {
+        const decrypted = await decryptPayloadWithPassword(
+          project.encryptedPayload,
+          enteredPassword.trim()
+        );
+        if (decrypted && Array.isArray(decrypted)) {
+          setDecryptedSections(decrypted);
+          isValid = true;
+        }
+      } else {
+        // 2. Hash check fallback
+        isValid = await verifyPassword(enteredPassword.trim(), project.passwordHash);
+        const isLegacyValid = !project.passwordHash && project.password && enteredPassword.trim() === project.password.trim();
+        if (isValid || isLegacyValid) {
+          isValid = true;
+        }
+      }
+
+      if (isValid) {
         setIsUnlocked(true);
         setPasswordError(false);
         setFailedAttempts(0);
@@ -354,7 +390,32 @@ export function PublishedSitePage({ slug, onNavigateHome }) {
   }
 
   // 3. Active Website Render
-  const sections = (project.sections || []).filter((s) => s.enabled);
+  const sections = (decryptedSections || project.sections || []).filter((s) => s.enabled);
+
+  const musicSection = (project.sections || []).find((s) => s.type === "MUSIC");
+  const bgAudioUrl = musicSection?.content?.audioUrl || ROMANTIC_AUDIO_PRESETS[0].url;
+  const bgAudioTitle = musicSection?.content?.title || "Canon in D (Piano Solo)";
+
+  const handleToggleMusic = () => {
+    if (!bgAudioRef.current) return;
+    if (isPlayingMusic) {
+      bgAudioRef.current.pause();
+      setIsPlayingMusic(false);
+    } else {
+      bgAudioRef.current
+        .play()
+        .then(() => setIsPlayingMusic(true))
+        .catch((err) => console.warn("Background audio play blocked:", err));
+    }
+  };
+
+  const handleToggleMute = (e) => {
+    e.stopPropagation();
+    if (bgAudioRef.current) {
+      bgAudioRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
 
   const handleSendLove = () => {
     setLikeCount((c) => c + 1);
@@ -385,33 +446,62 @@ export function PublishedSitePage({ slug, onNavigateHome }) {
           right: "20px",
           zIndex: 9000,
           borderRadius: "var(--radius-pill)",
-          padding: "6px 16px 6px 10px",
+          padding: "6px 14px 6px 8px",
           display: "flex",
           alignItems: "center",
           gap: "10px",
           boxShadow: "var(--shadow-card)",
           cursor: "pointer"
         }}
-        onClick={() => setIsPlayingMusic(!isPlayingMusic)}
+        onClick={handleToggleMusic}
       >
         <div
           style={{
-            width: "32px",
-            height: "32px",
+            width: "34px",
+            height: "34px",
             borderRadius: "50%",
             background: "var(--color-primary)",
             color: "#FFF",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center"
+            justifyContent: "center",
+            flexShrink: 0
           }}
         >
           {isPlayingMusic ? <Pause size={15} /> : <Play size={15} style={{ marginLeft: "2px" }} />}
         </div>
-        <div style={{ fontSize: "12.5px", fontWeight: 600 }}>
-          {isPlayingMusic ? "กำลังเล่น: Canon in D (Piano) 🎵" : "เปิดเพลงบรรเลง 🎶"}
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-text-primary)" }}>
+            {isPlayingMusic ? `กำลังเล่น: ${bgAudioTitle}` : "เปิดเพลงบรรเลง 🎶"}
+          </span>
+          <span style={{ fontSize: "10.5px", color: "var(--color-text-secondary)" }}>
+            {isPlayingMusic ? "แตะเพื่อหยุดชั่วคราว" : "แตะเพื่อเปิดเพลงคลอ"}
+          </span>
         </div>
+        {isPlayingMusic && (
+          <button
+            type="button"
+            className="btn-icon"
+            onClick={handleToggleMute}
+            style={{ width: "26px", height: "26px", color: "var(--color-text-secondary)", marginLeft: "4px" }}
+            title={isMuted ? "เปิดเสียง" : "ปิดเสียง"}
+          >
+            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+          </button>
+        )}
       </div>
+
+      <audio
+        ref={bgAudioRef}
+        src={bgAudioUrl}
+        loop
+        preload="none"
+        onEnded={() => setIsPlayingMusic(false)}
+        onError={() => {
+          setIsPlayingMusic(false);
+          console.warn("Background audio playback failed or URL unavailable");
+        }}
+      />
 
       {/* Render All Sections */}
       <main style={{ maxWidth: "860px", margin: "0 auto", padding: "40px 0 100px" }}>

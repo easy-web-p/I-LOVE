@@ -17,6 +17,7 @@ import {
   Check
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
+import { ROMANTIC_AUDIO_PRESETS } from "../../utils/audio";
 
 export function PropertiesPanel({ selectedSection, onUpdateSection }) {
   const { memories, showToast } = useApp();
@@ -686,6 +687,34 @@ export function PropertiesPanel({ selectedSection, onUpdateSection }) {
             {selectedSection.type === "MUSIC" && (
               <>
                 <div className="form-group">
+                  <label className="form-label">เลือกเพลงบรรเลงสำเร็จรูป (Preset)</label>
+                  <select
+                    className="form-select"
+                    value={
+                      ROMANTIC_AUDIO_PRESETS.find(
+                        (p) => p.url === selectedSection.content.audioUrl
+                      )?.id || "custom"
+                    }
+                    onChange={(e) => {
+                      const selectedId = e.target.value;
+                      if (selectedId === "custom") return;
+                      const preset = ROMANTIC_AUDIO_PRESETS.find((p) => p.id === selectedId);
+                      if (preset) {
+                        handleContentChange("title", preset.title);
+                        handleContentChange("artist", preset.artist);
+                        handleContentChange("audioUrl", preset.url);
+                      }
+                    }}
+                  >
+                    <option value="custom">-- เลือกเพลงบรรเลง หรือใส่ลิงก์เอง --</option>
+                    {ROMANTIC_AUDIO_PRESETS.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        🎵 {p.title} - {p.artist}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
                   <label className="form-label">ชื่อเพลง</label>
                   <input
                     type="text"
@@ -704,7 +733,7 @@ export function PropertiesPanel({ selectedSection, onUpdateSection }) {
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">ไฟล์เพลง (MP3 Audio URL - ไม่บังคับ)</label>
+                  <label className="form-label">ไฟล์เพลง (MP3 Audio URL - กำหนดเองได้)</label>
                   <input
                     type="text"
                     className="form-input"
@@ -712,6 +741,9 @@ export function PropertiesPanel({ selectedSection, onUpdateSection }) {
                     onChange={(e) => handleContentChange("audioUrl", e.target.value)}
                     placeholder="https://.../song.mp3"
                   />
+                  <span style={{ fontSize: "11px", color: "var(--color-text-muted)", marginTop: "4px", display: "block" }}>
+                    💡 สามารถใส่ลิงก์ MP3 จาก Cloud Storage หรือเลือกเพลง Preset ด้านบน
+                  </span>
                 </div>
               </>
             )}

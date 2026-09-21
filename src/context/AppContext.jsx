@@ -667,46 +667,49 @@ export function AppProvider({ children }) {
     }
   };
 
-  const publishProject = (projectId, publishConfig) => {
+  const publishProject = async (projectId, publishConfig) => {
     let publishedSnapshot = null;
     let finalProject = null;
 
-    setProjects((prev) =>
-      prev.map((p) => {
-        if (p.id === projectId) {
-          const status =
-            publishConfig.revealAt && new Date(publishConfig.revealAt) > new Date()
-              ? "SCHEDULED"
-              : publishConfig.visibility === "PASSWORD"
-              ? "PRIVATE"
-              : "PUBLISHED";
+    const targetProject = projects.find((p) => p.id === projectId);
+    if (!targetProject) return;
 
-          const updated = {
-            ...p,
-            slug: publishConfig.slug || p.slug,
-            visibility: publishConfig.visibility,
-            passwordHash: publishConfig.passwordHash || null,
-            revealAt: publishConfig.revealAt || null,
-            expiresAt: publishConfig.expiresAt || null,
-            status: status,
-            publishedAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          };
-          delete updated.password; // Prevent storing plaintext password
-          finalProject = updated;
-          publishedSnapshot = createSanitizedPublicSnapshot(updated);
-          return updated;
-        }
-        return p;
-      })
+    const status =
+      publishConfig.revealAt && new Date(publishConfig.revealAt) > new Date()
+        ? "SCHEDULED"
+        : publishConfig.visibility === "PASSWORD"
+        ? "PRIVATE"
+        : "PUBLISHED";
+
+    const updated = {
+      ...targetProject,
+      slug: publishConfig.slug || targetProject.slug,
+      visibility: publishConfig.visibility,
+      passwordHash: publishConfig.passwordHash || null,
+      revealAt: publishConfig.revealAt || null,
+      expiresAt: publishConfig.expiresAt || null,
+      status: status,
+      publishedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    delete updated.password; // Prevent storing plaintext password
+    finalProject = updated;
+
+    publishedSnapshot = await createSanitizedPublicSnapshot(
+      updated,
+      publishConfig.rawPassword || ""
+    );
+
+    setProjects((prev) =>
+      prev.map((p) => (p.id === projectId ? updated : p))
     );
 
     // Sync to Cloud Firestore
     if (publishedSnapshot && publishedSnapshot.slug) {
-      savePublishedSiteToFirestore(publishedSnapshot.slug, publishedSnapshot);
+      await savePublishedSiteToFirestore(publishedSnapshot.slug, publishedSnapshot);
     }
     if (finalProject && currentUser?.uid && !currentUser.isAnonymous) {
-      saveProjectToFirestore(finalProject);
+      await saveProjectToFirestore(finalProject);
     }
 
     showToast("เผยแพร่เว็บไซต์ของคุณเรียบร้อยแล้ว! 🎉");

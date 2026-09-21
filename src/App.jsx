@@ -1,23 +1,26 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense, lazy } from "react";
 import { AppProvider, useApp } from "./context/AppContext";
 import { Navbar } from "./components/common/Navbar";
 import { Footer } from "./components/common/Footer";
 import { AuthModal } from "./components/common/AuthModal";
 import { PublishModal } from "./components/publish/PublishModal";
 import { ShareModal } from "./components/publish/ShareModal";
-
-import { LandingPage } from "./pages/LandingPage";
-import { DashboardPage } from "./pages/DashboardPage";
-import { ProjectWizardPage } from "./pages/ProjectWizardPage";
-import { WebsiteBuilderPage } from "./pages/WebsiteBuilderPage";
-import { MemoryLibraryPage } from "./pages/MemoryLibraryPage";
-import { ImportantDatesPage } from "./pages/ImportantDatesPage";
-import { TemplatesPage } from "./pages/TemplatesPage";
-import { BillingPage } from "./pages/BillingPage";
-import { SettingsPage } from "./pages/SettingsPage";
-import { PublishedSitePage } from "./pages/PublishedSitePage";
-import { AdminPage } from "./pages/AdminPage";
 import { AnalyticsModal } from "./components/analytics/AnalyticsModal";
+import { RomanticLoadingFallback } from "./components/common/RomanticLoadingFallback";
+import { ErrorBoundary } from "./components/common/ErrorBoundary";
+
+// Code-split pages with React.lazy
+const LandingPage = lazy(() => import("./pages/LandingPage").then((m) => ({ default: m.LandingPage })));
+const DashboardPage = lazy(() => import("./pages/DashboardPage").then((m) => ({ default: m.DashboardPage })));
+const ProjectWizardPage = lazy(() => import("./pages/ProjectWizardPage").then((m) => ({ default: m.ProjectWizardPage })));
+const WebsiteBuilderPage = lazy(() => import("./pages/WebsiteBuilderPage").then((m) => ({ default: m.WebsiteBuilderPage })));
+const MemoryLibraryPage = lazy(() => import("./pages/MemoryLibraryPage").then((m) => ({ default: m.MemoryLibraryPage })));
+const ImportantDatesPage = lazy(() => import("./pages/ImportantDatesPage").then((m) => ({ default: m.ImportantDatesPage })));
+const TemplatesPage = lazy(() => import("./pages/TemplatesPage").then((m) => ({ default: m.TemplatesPage })));
+const BillingPage = lazy(() => import("./pages/BillingPage").then((m) => ({ default: m.BillingPage })));
+const SettingsPage = lazy(() => import("./pages/SettingsPage").then((m) => ({ default: m.SettingsPage })));
+const PublishedSitePage = lazy(() => import("./pages/PublishedSitePage").then((m) => ({ default: m.PublishedSitePage })));
+const AdminPage = lazy(() => import("./pages/AdminPage").then((m) => ({ default: m.AdminPage })));
 
 function getPageFromPath(path) {
   if (path.startsWith("/s/")) return "published";
@@ -114,74 +117,78 @@ function AppContent() {
         />
       )}
 
-      {/* Main Pages Switcher */}
+      {/* Main Pages Switcher with ErrorBoundary & Suspense */}
       <main style={{ flex: 1 }}>
-        {activePage === "landing" && (
-          <LandingPage
-            setActivePage={navigateTo}
-            onOpenAuth={() => setIsAuthModalOpen(true)}
-            onSelectTemplate={(tplId) => setWizardTemplateId(tplId)}
-          />
-        )}
+        <ErrorBoundary>
+          <Suspense fallback={<RomanticLoadingFallback />}>
+            {activePage === "landing" && (
+              <LandingPage
+                setActivePage={navigateTo}
+                onOpenAuth={() => setIsAuthModalOpen(true)}
+                onSelectTemplate={(tplId) => setWizardTemplateId(tplId)}
+              />
+            )}
 
-        {activePage === "dashboard" && (
-          <DashboardPage
-            setActivePage={navigateTo}
-            onOpenPublish={(proj) => setPublishModalProject(proj)}
-            onOpenShare={(slug) => setShareModalSlug(slug)}
-            onOpenAnalytics={(proj) => setAnalyticsModalProject(proj)}
-          />
-        )}
+            {activePage === "dashboard" && (
+              <DashboardPage
+                setActivePage={navigateTo}
+                onOpenPublish={(proj) => setPublishModalProject(proj)}
+                onOpenShare={(slug) => setShareModalSlug(slug)}
+                onOpenAnalytics={(proj) => setAnalyticsModalProject(proj)}
+              />
+            )}
 
-        {activePage === "project-wizard" && (
-          <ProjectWizardPage
-            setActivePage={navigateTo}
-            selectedTemplateId={wizardTemplateId}
-          />
-        )}
+            {activePage === "project-wizard" && (
+              <ProjectWizardPage
+                setActivePage={navigateTo}
+                selectedTemplateId={wizardTemplateId}
+              />
+            )}
 
-        {activePage === "builder" && (
-          <WebsiteBuilderPage
-            setActivePage={navigateTo}
-            onOpenPublish={(proj) => setPublishModalProject(proj)}
-            onOpenShare={(slug) => setShareModalSlug(slug)}
-            onOpenAnalytics={(proj) => setAnalyticsModalProject(proj)}
-          />
-        )}
+            {activePage === "builder" && (
+              <WebsiteBuilderPage
+                setActivePage={navigateTo}
+                onOpenPublish={(proj) => setPublishModalProject(proj)}
+                onOpenShare={(slug) => setShareModalSlug(slug)}
+                onOpenAnalytics={(proj) => setAnalyticsModalProject(proj)}
+              />
+            )}
 
-        {activePage === "memories" && (
-          <MemoryLibraryPage setActivePage={navigateTo} />
-        )}
+            {activePage === "memories" && (
+              <MemoryLibraryPage setActivePage={navigateTo} />
+            )}
 
-        {activePage === "important-dates" && (
-          <ImportantDatesPage setActivePage={navigateTo} />
-        )}
+            {activePage === "important-dates" && (
+              <ImportantDatesPage setActivePage={navigateTo} />
+            )}
 
-        {activePage === "templates" && (
-          <TemplatesPage
-            setActivePage={navigateTo}
-            onSelectTemplate={(tplId) => setWizardTemplateId(tplId)}
-          />
-        )}
+            {activePage === "templates" && (
+              <TemplatesPage
+                setActivePage={navigateTo}
+                onSelectTemplate={(tplId) => setWizardTemplateId(tplId)}
+              />
+            )}
 
-        {activePage === "billing" && (
-          <BillingPage setActivePage={navigateTo} />
-        )}
+            {activePage === "billing" && (
+              <BillingPage setActivePage={navigateTo} />
+            )}
 
-        {activePage === "settings" && (
-          <SettingsPage setActivePage={navigateTo} />
-        )}
+            {activePage === "settings" && (
+              <SettingsPage setActivePage={navigateTo} />
+            )}
 
-        {activePage === "admin" && (
-          <AdminPage setActivePage={navigateTo} />
-        )}
+            {activePage === "admin" && (
+              <AdminPage setActivePage={navigateTo} />
+            )}
 
-        {activePage === "published" && (
-          <PublishedSitePage
-            slug={publishedSlug}
-            onNavigateHome={navigateToHome}
-          />
-        )}
+            {activePage === "published" && (
+              <PublishedSitePage
+                slug={publishedSlug}
+                onNavigateHome={navigateToHome}
+              />
+            )}
+          </Suspense>
+        </ErrorBoundary>
       </main>
 
       {/* Global Footer (Hidden in Builder and Published Site) */}
