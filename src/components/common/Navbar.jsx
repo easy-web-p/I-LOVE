@@ -386,17 +386,20 @@ export function Navbar({ activePage, setActivePage, onOpenAuth }) {
                       แผน: {currentUser.plan}
                     </span>
                   </div>
-                  <button
-                    onClick={() => {
-                      setActivePage("admin");
-                      setUserDropdownOpen(false);
-                    }}
-                    className="btn btn-ghost btn-sm"
-                    style={{ width: "100%", justifyContent: "flex-start", marginTop: "4px", color: "#7C3AED" }}
-                  >
-                    <Shield size={15} />
-                    ศูนย์ดูแลระบบ (Admin)
-                  </button>
+                  {/* Admin Console - Only visible for ADMIN and SUPER_ADMIN */}
+                  {(currentUser.role === "ADMIN" || currentUser.role === "SUPER_ADMIN") && (
+                    <button
+                      onClick={() => {
+                        setActivePage("admin");
+                        setUserDropdownOpen(false);
+                      }}
+                      className="btn btn-ghost btn-sm"
+                      style={{ width: "100%", justifyContent: "flex-start", marginTop: "4px", color: "#7C3AED" }}
+                    >
+                      <Shield size={15} />
+                      ศูนย์ดูแลระบบ (Admin)
+                    </button>
+                  )}
                   <button
                     onClick={() => {
                       setActivePage("settings");

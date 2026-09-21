@@ -23,6 +23,63 @@ import {
 export function AdminPage({ setActivePage }) {
   const { currentUser, projects, switchUserRole, switchUserPlan, showToast } = useApp();
 
+  const isAdmin = currentUser && (currentUser.role === "ADMIN" || currentUser.role === "SUPER_ADMIN");
+
+  // 403 Access Denied Guard: Only Admins can access
+  if (!isAdmin) {
+    return (
+      <div
+        style={{
+          padding: "80px 20px",
+          textAlign: "center",
+          minHeight: "calc(100vh - 68px)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "var(--color-bg)"
+        }}
+      >
+        <div
+          style={{
+            width: "72px",
+            height: "72px",
+            borderRadius: "50%",
+            background: "#FEE2E2",
+            color: "#DC2626",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: "20px",
+            boxShadow: "0 8px 24px rgba(220, 38, 38, 0.15)"
+          }}
+        >
+          <ShieldAlert size={38} />
+        </div>
+        <h2 style={{ fontSize: "26px", color: "var(--color-text-primary)", marginBottom: "8px", fontWeight: 700 }}>
+          403 — ไม่อนุญาตให้เข้าถึง (Access Denied)
+        </h2>
+        <p style={{ fontSize: "15px", color: "var(--color-text-secondary)", maxWidth: "460px", lineHeight: 1.6, marginBottom: "28px" }}>
+          หน้านี้สงวนสิทธิ์เฉพาะผู้ดูแลระบบ (Admin) เท่านั้น บัญชีปัจจุบันของคุณ ({currentUser?.email || "ผู้เยี่ยมชม"}) มีสิทธิ์เป็น <strong>{currentUser?.role || "USER"}</strong>
+        </p>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <button
+            onClick={() => setActivePage("dashboard")}
+            className="btn btn-primary"
+          >
+            กลับสู่หน้าหลัก (Dashboard)
+          </button>
+          <button
+            onClick={() => setActivePage("settings")}
+            className="btn btn-secondary"
+          >
+            ไปที่หน้าตั้งค่าโปรไฟล์
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const [activeTab, setActiveTab] = useState("users"); // 'users' | 'templates' | 'moderation' | 'operations'
   const [searchQuery, setSearchQuery] = useState("");
 
