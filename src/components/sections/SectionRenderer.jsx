@@ -21,6 +21,7 @@ import {
   Radio,
   CheckCircle2
 } from "lucide-react";
+import { sanitizeUrl, getSafeVideoEmbedUrl } from "../../utils/security";
 
 export function SectionRenderer({
   section,
@@ -730,9 +731,9 @@ export function SectionRenderer({
               background: "#000"
             }}
           >
-            {section.content.videoUrl && section.content.videoUrl.includes("youtube") ? (
+            {section.content.videoUrl && (section.content.videoUrl.includes("youtube") || section.content.videoUrl.includes("youtu.be") || section.content.videoUrl.includes("vimeo")) ? (
               <iframe
-                src={section.content.videoUrl.replace("watch?v=", "embed/")}
+                src={getSafeVideoEmbedUrl(section.content.videoUrl)}
                 title={section.content.title || "Video"}
                 style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: 0 }}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -740,7 +741,7 @@ export function SectionRenderer({
               />
             ) : (
               <video
-                src={section.content.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"}
+                src={sanitizeUrl(section.content.videoUrl) || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"}
                 controls
                 style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
               />
@@ -934,9 +935,9 @@ export function SectionRenderer({
             )}
             {section.content.mapUrl ? (
               <a
-                href={section.content.mapUrl}
+                href={sanitizeUrl(section.content.mapUrl)}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="btn btn-secondary btn-sm"
               >
                 <ExternalLink size={15} />
@@ -970,7 +971,10 @@ export function SectionRenderer({
             onClick={() => {
               confetti({ particleCount: 80, spread: 70 });
               if (section.content.actionUrl) {
-                window.open(section.content.actionUrl, "_blank");
+                const safeUrl = sanitizeUrl(section.content.actionUrl);
+                if (safeUrl && safeUrl !== "#") {
+                  window.open(safeUrl, "_blank", "noopener,noreferrer");
+                }
               }
             }}
           >

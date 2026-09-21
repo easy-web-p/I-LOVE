@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { TEMPLATES } from "../config/templates";
+import { createSanitizedPublicSnapshot } from "../utils/security";
 
 const AppContext = createContext(null);
 
@@ -412,13 +413,15 @@ export function AppProvider({ children }) {
             ...p,
             slug: publishConfig.slug || p.slug,
             visibility: publishConfig.visibility,
-            password: publishConfig.password || null,
+            passwordHash: publishConfig.passwordHash || null,
             revealAt: publishConfig.revealAt || null,
             expiresAt: publishConfig.expiresAt || null,
             status: status,
             publishedAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           };
+          delete updated.password; // Prevent storing plaintext password
+          return updated;
         }
         return p;
       })
@@ -571,11 +574,13 @@ export function AppProvider({ children }) {
     showToast("ลบวันสำคัญแล้ว", "info");
   };
 
-  // Published Site Public Finder
+  // Published Site Public Finder (Sanitized Public Snapshot - Section 16.2)
   const getPublishedSiteBySlug = (slug) => {
-    return projects.find(
+    const found = projects.find(
       (p) => (p.slug && p.slug.toLowerCase() === slug.toLowerCase()) || p.id === slug
     );
+    if (!found) return null;
+    return createSanitizedPublicSnapshot(found);
   };
 
   return (

@@ -12,6 +12,7 @@ import {
   Sparkles,
   ArrowRight
 } from "lucide-react";
+import { hashPassword } from "../../utils/security";
 
 export function PublishModal({ isOpen, onClose, project, onPublishedSuccess }) {
   const { publishProject } = useApp();
@@ -31,14 +32,19 @@ export function PublishModal({ isOpen, onClose, project, onPublishedSuccess }) {
 
   if (!isOpen || !project) return null;
 
-  const handlePublish = (e) => {
+  const handlePublish = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    let passwordHash = null;
+    if (visibility === "PASSWORD" && password) {
+      passwordHash = await hashPassword(password);
+    }
 
     const publishConfig = {
       slug: slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-"),
       visibility: visibility,
-      password: visibility === "PASSWORD" ? password : null,
+      passwordHash: passwordHash, // Store only secure hash, never plaintext
       revealAt: revealMode === "SCHEDULED" ? new Date(revealDate).toISOString() : null,
       expiresAt: hasExpiry && expiryDate ? new Date(expiryDate).toISOString() : null
     };
@@ -50,7 +56,7 @@ export function PublishModal({ isOpen, onClose, project, onPublishedSuccess }) {
       if (onPublishedSuccess) {
         onPublishedSuccess(publishConfig.slug);
       }
-    }, 600);
+    }, 400);
   };
 
   return (

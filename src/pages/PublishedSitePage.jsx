@@ -15,6 +15,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import confetti from "canvas-confetti";
+import { verifyPassword } from "../utils/security";
 
 export function PublishedSitePage({ slug, onNavigateHome }) {
   const { getPublishedSiteBySlug } = useApp();
@@ -24,6 +25,8 @@ export function PublishedSitePage({ slug, onNavigateHome }) {
   const [enteredPassword, setEnteredPassword] = useState("");
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutSeconds, setLockoutSeconds] = useState(0);
 
   // Audio player mock state
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
@@ -53,6 +56,16 @@ export function PublishedSitePage({ slug, onNavigateHome }) {
       return () => clearInterval(timer);
     }
   }, [project]);
+
+  // Lockout Timer for Brute-force Prevention (Section 17.2)
+  useEffect(() => {
+    if (lockoutSeconds > 0) {
+      const timer = setInterval(() => {
+        setLockoutSeconds((s) => Math.max(0, s - 1));
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [lockoutSeconds]);
 
   if (!project) {
     return (
@@ -174,17 +187,30 @@ export function PublishedSitePage({ slug, onNavigateHome }) {
 
   // 2. Password Protection Check
   if (project.visibility === "PASSWORD" && !isUnlocked) {
-    const handlePasswordSubmit = (e) => {
+    const handlePasswordSubmit = async (e) => {
       e.preventDefault();
-      if (enteredPassword.trim() === (project.password || "").trim()) {
+      if (lockoutSeconds > 0) return;
+
+      const isValid = await verifyPassword(enteredPassword.trim(), project.passwordHash);
+      const isLegacyValid = !project.passwordHash && project.password && enteredPassword.trim() === project.password.trim();
+
+      if (isValid || isLegacyValid) {
         setIsUnlocked(true);
+        setPasswordError(false);
+        setFailedAttempts(0);
         confetti({
           particleCount: 60,
           spread: 60,
           origin: { y: 0.6 }
         });
       } else {
+        const nextAttempts = failedAttempts + 1;
+        setFailedAttempts(nextAttempts);
         setPasswordError(true);
+        if (nextAttempts >= 5) {
+          setLockoutSeconds(60);
+          setFailedAttempts(0);
+        }
       }
     };
 
@@ -240,7 +266,8 @@ export function PublishedSitePage({ slug, onNavigateHome }) {
               <input
                 type="password"
                 required
-                placeholder="กรอกรหัสผ่าน..."
+                disabled={lockoutSeconds > 0}
+                placeholder={lockoutSeconds > 0 ? `กรุณารออีก ${lockoutSeconds} วินาที...` : "กรอกรหัสผ่าน..."}
                 className="form-input"
                 style={{ textAlign: "center", fontSize: "18px", letterSpacing: "2px" }}
                 value={enteredPassword}
@@ -249,14 +276,23 @@ export function PublishedSitePage({ slug, onNavigateHome }) {
                   setPasswordError(false);
                 }}
               />
-              {passwordError && (
-                <div style={{ color: "var(--color-error)", fontSize: "13px", marginTop: "6px", textAlign: "center" }}>
-                  รหัสผ่านไม่ถูกต้อง ลองใหม่อีกครั้งนะ
+              {lockoutSeconds > 0 ? (
+                <div style={{ color: "var(--color-error)", fontSize: "13px", marginTop: "8px", textAlign: "center", fontWeight: 600 }}>
+                  ⚠️ กรอกรหัสผิดหลายครั้งเกินไป ระบบล็อกชั่วคราว {lockoutSeconds} วินาที
                 </div>
-              )}
+              ) : passwordError ? (
+                <div style={{ color: "var(--color-error)", fontSize: "13px", marginTop: "6px", textAlign: "center" }}>
+                  รหัสผ่านไม่ถูกต้อง (ลองผิดได้อีก {5 - failedAttempts} ครั้ง)
+                </div>
+              ) : null}
             </div>
 
-            <button type="submit" className="btn btn-primary" style={{ width: "100%" }}>
+            <button
+              type="submit"
+              disabled={lockoutSeconds > 0}
+              className="btn btn-primary"
+              style={{ width: "100%", opacity: lockoutSeconds > 0 ? 0.6 : 1 }}
+            >
               <Unlock size={16} /> ปลดล็อกเว็บไซต์
             </button>
           </form>
