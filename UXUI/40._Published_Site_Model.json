@@ -1,0 +1,16 @@
+{
+  "projectId": "project-id",
+  "ownerId": "firebase-user-id",
+  "slug": "happy-birthday-may",
+  "title": "Happy Birthday",
+  "description": "",
+  "status": "ACTIVE",
+  "visibility": "UNLISTED",
+  "templateId": "birthday-pink-01",
+  "theme": {},
+  "sections": [],
+  "revealAt": null,
+  "expiresAt": null,
+  "publishedAt": "Timestamp",
+  "version": 1
+}

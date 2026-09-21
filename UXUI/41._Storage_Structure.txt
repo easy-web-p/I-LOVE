@@ -1,0 +1,11 @@
+users/
+└── {uid}/
+    ├── profile/
+    ├── memories/
+    │   └── {memoryId}/
+    └── projects/
+        └── {projectId}/
+            ├── images/
+            ├── videos/
+            ├── audio/
+            └── thumbnails/

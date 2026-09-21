@@ -1,0 +1,24 @@
+{
+  "ownerId": "firebase-user-id",
+  "title": "Happy Birthday",
+  "description": "",
+  "slug": null,
+  "category": "BIRTHDAY",
+  "templateId": "birthday-pink-01",
+  "status": "DRAFT",
+  "visibility": "UNLISTED",
+  "coverImage": "",
+  "theme": {
+    "backgroundColor": "#FFF9FB",
+    "textColor": "#33252E",
+    "accentColor": "#E85D8E",
+    "headingFont": "Mali",
+    "bodyFont": "Noto Sans Thai"
+  },
+  "sections": [],
+  "revealAt": null,
+  "expiresAt": null,
+  "publishedAt": null,
+  "createdAt": "Timestamp",
+  "updatedAt": "Timestamp"
+}

@@ -1,0 +1,25 @@
+users/{uid}
+
+projects/{projectId}
+├── memories/{memoryId}
+├── media/{mediaId}
+└── revisions/{revisionId}
+
+memories/{memoryId}
+
+templates/{templateId}
+
+importantDates/{dateId}
+
+publishedSites/{slug}
+
+subscriptions/{subscriptionId}
+
+payments/{paymentId}
+
+notifications/{notificationId}
+
+analytics/{projectId}
+└── daily/{date}
+
+reports/{reportId}

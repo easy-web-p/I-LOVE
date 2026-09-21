@@ -1,0 +1,18 @@
+ผู้ใช้
+  ↓
+React Web Application
+  ├── Authentication UI
+  ├── Dashboard
+  ├── Memory Library
+  ├── Template Gallery
+  ├── Website Builder
+  ├── Preview
+  └── Published Website
+  ↓
+Firebase SDK
+  ├── Firebase Authentication
+  ├── Cloud Firestore
+  ├── Firebase Storage
+  └── Cloud Functions
+  ↓
+Firebase Hosting

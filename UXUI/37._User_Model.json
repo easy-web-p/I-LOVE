@@ -1,0 +1,12 @@
+{
+  "uid": "firebase-user-id",
+  "name": "User Name",
+  "email": "user@example.com",
+  "photoURL": null,
+  "plan": "FREE",
+  "role": "USER",
+  "emailVerified": false,
+  "storageUsed": 0,
+  "createdAt": "Timestamp",
+  "updatedAt": "Timestamp"
+}

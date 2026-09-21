@@ -1,0 +1,10 @@
+สร้าง Feature Branch
+→ พัฒนา
+→ Test
+→ Push GitHub
+→ Pull Request
+→ Review
+→ Merge develop
+→ ทดสอบ Staging
+→ Merge main
+→ Deploy Production

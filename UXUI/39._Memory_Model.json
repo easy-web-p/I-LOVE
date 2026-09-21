@@ -1,0 +1,25 @@
+{
+  "ownerId": "firebase-user-id",
+  "title": "เจอกันครั้งแรก",
+  "description": "วันที่เราได้พบกันครั้งแรก",
+  "eventDate": "Timestamp",
+  "category": "LOVE",
+  "location": {
+    "name": "Bangkok",
+    "latitude": null,
+    "longitude": null
+  },
+  "media": [
+    {
+      "type": "IMAGE",
+      "path": "users/uid/memories/id/image.webp",
+      "downloadURL": "https://example.com/image.webp"
+    }
+  ],
+  "tags": [
+    "first-date",
+    "love"
+  ],
+  "createdAt": "Timestamp",
+  "updatedAt": "Timestamp"
+}

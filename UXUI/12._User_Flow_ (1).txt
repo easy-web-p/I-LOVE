@@ -1,0 +1,12 @@
+สมัครสมาชิก
+→ สร้าง Project
+→ เลือก Template
+→ เพิ่ม Sections
+→ แก้ไขข้อความ
+→ เพิ่มรูป
+→ เลือก Memories
+→ ปรับ Theme
+→ ปรับ Animation
+→ Preview
+→ ตั้งค่า Privacy
+→ Publish

@@ -1,0 +1,53 @@
+memory-website-builder/
+├── apps/
+│   └── web/
+│       ├── public/
+│       ├── src/
+│       │   ├── assets/
+│       │   ├── components/
+│       │   │   ├── auth/
+│       │   │   ├── builder/
+│       │   │   ├── dashboard/
+│       │   │   ├── memories/
+│       │   │   ├── templates/
+│       │   │   └── common/
+│       │   ├── layouts/
+│       │   ├── pages/
+│       │   ├── services/
+│       │   ├── stores/
+│       │   ├── hooks/
+│       │   ├── schemas/
+│       │   ├── templates/
+│       │   ├── config/
+│       │   ├── utils/
+│       │   ├── App.jsx
+│       │   ├── main.jsx
+│       │   └── index.css
+│       ├── .env.example
+│       ├── package.json
+│       └── vite.config.js
+├── functions/
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── services/
+│   │   ├── validators/
+│   │   ├── middlewares/
+│   │   ├── triggers/
+│   │   ├── scheduled/
+│   │   ├── utils/
+│   │   └── index.js
+│   └── package.json
+├── docs/
+│   └── MEMORY_WEBSITE_BUILDER_SPEC.md
+├── .github/
+│   └── workflows/
+│       ├── preview.yml
+│       └── deploy.yml
+├── firebase.json
+├── firestore.rules
+├── firestore.indexes.json
+├── storage.rules
+├── .firebaserc
+├── .gitignore
+├── package.json
+└── README.md

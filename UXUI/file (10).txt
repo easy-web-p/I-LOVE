@@ -1,0 +1,8 @@
+main
+develop
+feature/auth
+feature/dashboard
+feature/builder
+feature/memory
+feature/publish
+fix/project-save

@@ -1,0 +1,14 @@
+┌────────────────────────────────────────────────────────────┐
+│ ← Dashboard │ Project Name │ Saved │ Preview │ Publish    │
+├──────────────┬────────────────────────────┬────────────────┤
+│ Sections     │ Live Preview               │ Properties     │
+│              │                            │                │
+│ Hero         │ Desktop Tablet Mobile      │ Content        │
+│ Message      │                            │ Style          │
+│ Gallery      │     Website Preview        │ Animation      │
+│ Timeline     │                            │                │
+│ Countdown    │                            │                │
+│ Footer       │                            │                │
+│              │                            │                │
+│ Add Section  │                            │                │
+└──────────────┴────────────────────────────┴────────────────┘

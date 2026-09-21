@@ -1,0 +1,24 @@
+{
+  "id": "hero-01",
+  "type": "HERO",
+  "name": "ข้อความต้อนรับ",
+  "enabled": true,
+  "order": 1,
+  "content": {
+    "title": "สุขสันต์วันเกิดนะ ❤️",
+    "subtitle": "ขอให้วันนี้เป็นวันที่ดีที่สุด",
+    "imageURL": "",
+    "buttonText": "เปิดดูเรื่องราวของเรา",
+    "buttonTarget": "timeline"
+  },
+  "styles": {
+    "backgroundColor": "#FFF9FB",
+    "textColor": "#33252E",
+    "alignment": "center"
+  },
+  "animation": {
+    "type": "fade",
+    "duration": 600,
+    "delay": 100
+  }
+}
