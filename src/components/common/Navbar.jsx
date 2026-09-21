@@ -12,7 +12,8 @@ import {
   LogOut,
   Menu,
   X,
-  LayoutDashboard
+  LayoutDashboard,
+  Shield
 } from "lucide-react";
 
 export function Navbar({ activePage, setActivePage, onOpenAuth }) {
@@ -214,14 +215,25 @@ export function Navbar({ activePage, setActivePage, onOpenAuth }) {
                   </div>
                   <button
                     onClick={() => {
+                      setActivePage("admin");
+                      setUserDropdownOpen(false);
+                    }}
+                    className="btn btn-ghost btn-sm"
+                    style={{ width: "100%", justifyContent: "flex-start", marginTop: "4px", color: "#7C3AED" }}
+                  >
+                    <Shield size={15} />
+                    ศูนย์ดูแลระบบ (Admin)
+                  </button>
+                  <button
+                    onClick={() => {
                       setActivePage("settings");
                       setUserDropdownOpen(false);
                     }}
                     className="btn btn-ghost btn-sm"
-                    style={{ width: "100%", justifyContent: "flex-start", marginTop: "4px" }}
+                    style={{ width: "100%", justifyContent: "flex-start" }}
                   >
                     <User size={15} />
-                    ข้อมูลโปรไฟล์
+                    ข้อมูลโปรไฟล์ & แผน
                   </button>
                   <button
                     onClick={() => {

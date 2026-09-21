@@ -1,0 +1,53 @@
+Public Website
+├── Landing page
+├── Template gallery
+├── Website examples
+├── Pricing
+├── Authentication
+└── Published websites
+
+Member Application
+├── Dashboard
+├── Website projects
+├── Memory library
+├── Important dates
+├── Template selector
+├── Website builder
+├── Preview
+├── Publishing
+├── Sharing
+├── Analytics
+├── Billing
+└── Account settings
+
+Administration Application
+├── User management
+├── Website moderation
+├── Template management
+├── Subscription management
+├── Payment management
+├── Report management
+├── Storage monitoring
+└── System analytics
+
+Backend Services
+├── Authentication
+├── Project management
+├── Memory management
+├── Media management
+├── Template processing
+├── Publishing
+├── Privacy protection
+├── Scheduled reveal
+├── Notifications
+├── Payments
+└── Analytics
+
+Firebase Infrastructure
+├── Authentication
+├── Cloud Firestore
+├── Cloud Storage
+├── Cloud Functions
+├── Hosting
+├── App Check
+└── Emulator Suite

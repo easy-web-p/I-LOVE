@@ -420,6 +420,289 @@ export function PropertiesPanel({ selectedSection, onUpdateSection }) {
                 </div>
               </>
             )}
+
+            {/* IMAGE Content Fields */}
+            {selectedSection.type === "IMAGE" && (
+              <>
+                <div className="form-group">
+                  <label className="form-label">ลิงก์รูปภาพ (Image URL)</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.url || ""}
+                    onChange={(e) => handleContentChange("url", e.target.value)}
+                    placeholder="https://..."
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">คำบรรยายภาพ (Caption)</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.caption || ""}
+                    onChange={(e) => handleContentChange("caption", e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">สไตล์กรอบรูป</label>
+                  <select
+                    className="form-select"
+                    value={selectedSection.content.style || "polaroid"}
+                    onChange={(e) => handleContentChange("style", e.target.value)}
+                  >
+                    <option value="polaroid">กรอบโพลารอยด์คลาสสิก (Polaroid)</option>
+                    <option value="classic">กรอบรูปขอบมนเรียบหรู (Classic)</option>
+                  </select>
+                </div>
+              </>
+            )}
+
+            {/* VIDEO Content Fields */}
+            {selectedSection.type === "VIDEO" && (
+              <>
+                <div className="form-group">
+                  <label className="form-label">หัวข้อคลิปวิดีโอ</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.title || ""}
+                    onChange={(e) => handleContentChange("title", e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">คำบรรยาย</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.subtitle || ""}
+                    onChange={(e) => handleContentChange("subtitle", e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">ลิงก์วิดีโอ (YouTube URL หรือ MP4 URL)</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.videoUrl || ""}
+                    onChange={(e) => handleContentChange("videoUrl", e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                  />
+                </div>
+              </>
+            )}
+
+            {/* MUSIC Content Fields */}
+            {selectedSection.type === "MUSIC" && (
+              <>
+                <div className="form-group">
+                  <label className="form-label">ชื่อเพลง</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.title || ""}
+                    onChange={(e) => handleContentChange("title", e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">ศิลปิน / ผู้ร้อง</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.artist || ""}
+                    onChange={(e) => handleContentChange("artist", e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">ไฟล์เพลง (MP3 Audio URL - ไม่บังคับ)</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.audioUrl || ""}
+                    onChange={(e) => handleContentChange("audioUrl", e.target.value)}
+                    placeholder="https://.../song.mp3"
+                  />
+                </div>
+              </>
+            )}
+
+            {/* PERSON PROFILE Content Fields */}
+            {selectedSection.type === "PERSON_PROFILE" && (
+              <>
+                <div className="form-group">
+                  <label className="form-label">ชื่อคนพิเศษ</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.name || ""}
+                    onChange={(e) => handleContentChange("name", e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">ฉายาหรือชื่อเล่น</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.nickname || ""}
+                    onChange={(e) => handleContentChange("nickname", e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">รูปภาพโปรไฟล์ (Photo URL)</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.photoUrl || ""}
+                    onChange={(e) => handleContentChange("photoUrl", e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">คำแนะนำตัว / สิ่งที่ชอบ</label>
+                  <textarea
+                    className="form-textarea"
+                    rows={3}
+                    value={selectedSection.content.bio || ""}
+                    onChange={(e) => handleContentChange("bio", e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">ข้อความบอกรักประจำตัว (Tagline)</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.tagline || ""}
+                    onChange={(e) => handleContentChange("tagline", e.target.value)}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* MAP Content Fields */}
+            {selectedSection.type === "MAP" && (
+              <>
+                <div className="form-group">
+                  <label className="form-label">ชื่อสถานที่สำคัญ</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.locationName || ""}
+                    onChange={(e) => handleContentChange("locationName", e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">ที่อยู่ / พิกัด</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.address || ""}
+                    onChange={(e) => handleContentChange("address", e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">ความทรงจำ ณ สถานที่นี้</label>
+                  <textarea
+                    className="form-textarea"
+                    rows={3}
+                    value={selectedSection.content.note || ""}
+                    onChange={(e) => handleContentChange("note", e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">ลิงก์ Google Maps</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.mapUrl || ""}
+                    onChange={(e) => handleContentChange("mapUrl", e.target.value)}
+                    placeholder="https://maps.google.com/..."
+                  />
+                </div>
+              </>
+            )}
+
+            {/* BUTTON Content Fields */}
+            {selectedSection.type === "BUTTON" && (
+              <>
+                <div className="form-group">
+                  <label className="form-label">หัวข้อคำถาม</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.title || ""}
+                    onChange={(e) => handleContentChange("title", e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">คำอธิบายย่อย</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.subtitle || ""}
+                    onChange={(e) => handleContentChange("subtitle", e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">ข้อความบนปุ่ม (Button Label)</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.label || ""}
+                    onChange={(e) => handleContentChange("label", e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">ลิงก์ปลายทางเมื่อคลิก (ไม่บังคับ)</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.actionUrl || ""}
+                    onChange={(e) => handleContentChange("actionUrl", e.target.value)}
+                    placeholder="https://line.me/..."
+                  />
+                </div>
+              </>
+            )}
+
+            {/* IMPORTANT DATE Content Fields */}
+            {selectedSection.type === "IMPORTANT_DATE" && (
+              <>
+                <div className="form-group">
+                  <label className="form-label">ป้ายข้อความสั้น (Badge)</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.badge || ""}
+                    onChange={(e) => handleContentChange("badge", e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">หัวข้อวันสำคัญ</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.title || ""}
+                    onChange={(e) => handleContentChange("title", e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">วันที่</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedSection.content.date || ""}
+                    onChange={(e) => handleContentChange("date", e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">คำบรรยายความทรงจำ</label>
+                  <textarea
+                    className="form-textarea"
+                    rows={3}
+                    value={selectedSection.content.description || ""}
+                    onChange={(e) => handleContentChange("description", e.target.value)}
+                  />
+                </div>
+              </>
+            )}
           </div>
         )}
 

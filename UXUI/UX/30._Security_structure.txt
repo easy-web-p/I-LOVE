@@ -1,0 +1,14 @@
+Browser
+→ Untrusted
+
+Firebase SDK request
+→ Must pass Security Rules
+
+Callable Function request
+→ Must pass authentication, App Check, validation, and authorization
+
+Payment webhook
+→ Must pass provider signature verification
+
+Admin operation
+→ Must pass role verification and create an audit log

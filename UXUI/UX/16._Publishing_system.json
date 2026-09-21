@@ -1,0 +1,25 @@
+{
+  "projectId": "project-id",
+  "ownerId": "user-id",
+  "slug": "happy-birthday-may",
+  "title": "Happy Birthday May",
+  "description": "A birthday surprise",
+  "status": "ACTIVE",
+  "visibility": "UNLISTED",
+  "template": {
+    "id": "birthday-pink-01",
+    "version": 1
+  },
+  "theme": {},
+  "sections": [],
+  "socialPreview": {
+    "title": "Happy Birthday May",
+    "description": "A special surprise",
+    "imageURL": "https://..."
+  },
+  "revealAt": null,
+  "expiresAt": null,
+  "publishedAt": "Timestamp",
+  "updatedAt": "Timestamp",
+  "version": 1
+}

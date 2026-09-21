@@ -1,0 +1,13 @@
+/admin
+├── overview
+├── users
+├── projects
+├── published-sites
+├── templates
+├── subscriptions
+├── payments
+├── reports
+├── storage
+├── analytics
+├── audit-logs
+└── settings

@@ -1,0 +1,12 @@
+Project title exists
+Slug is valid
+Template is active
+Required sections exist
+Required content exists
+Media files are ready
+No broken media references
+Privacy configuration is valid
+Reveal time is valid
+Expiration is after reveal time
+Plan permits selected features
+Mobile layout can render

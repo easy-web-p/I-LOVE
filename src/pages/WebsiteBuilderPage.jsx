@@ -17,10 +17,11 @@ import {
   Maximize2,
   X,
   Layers,
-  Sliders
+  Sliders,
+  BarChart3
 } from "lucide-react";
 
-export function WebsiteBuilderPage({ setActivePage, onOpenPublish, onOpenShare }) {
+export function WebsiteBuilderPage({ setActivePage, onOpenPublish, onOpenShare, onOpenAnalytics }) {
   const { activeProject, updateProject, saveStatus } = useApp();
 
   const [selectedSectionId, setSelectedSectionId] = useState(() => {
@@ -226,6 +227,14 @@ export function WebsiteBuilderPage({ setActivePage, onOpenPublish, onOpenShare }
 
         {/* Right: Actions (Preview & Publish) */}
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <button
+            onClick={() => onOpenAnalytics && onOpenAnalytics(activeProject)}
+            className="btn btn-ghost btn-sm"
+            title="ดูสถิติผู้เข้าชม"
+          >
+            <BarChart3 size={15} />
+            <span className="hide-on-mobile">สถิติ</span>
+          </button>
           <button
             onClick={() => setIsFullscreenPreview(true)}
             className="btn btn-secondary btn-sm"

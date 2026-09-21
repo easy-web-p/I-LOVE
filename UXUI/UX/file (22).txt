@@ -1,0 +1,2 @@
+projects/{projectId}        Private editable draft
+publishedSites/{slug}       Sanitized public snapshot

@@ -1,0 +1,20 @@
+{
+  "id": "section-id",
+  "type": "HERO",
+  "name": "Hero",
+  "enabled": true,
+  "locked": false,
+  "order": 1,
+  "content": {},
+  "styles": {},
+  "animation": {
+    "type": "FADE",
+    "duration": 600,
+    "delay": 0
+  },
+  "visibility": {
+    "desktop": true,
+    "tablet": true,
+    "mobile": true
+  }
+}

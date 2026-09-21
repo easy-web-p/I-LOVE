@@ -1,0 +1,123 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['ADMIN', 'SUPER_ADMIN']);
+    }
+
+    // 1. Users collection
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+
+      match /notifications/{notificationId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      match /importantDates/{dateId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // 2. Projects collection (Private draft editable versions)
+    match /projects/{projectId} {
+      allow read: if (isAuthenticated() && resource.data.ownerId == request.auth.uid) || isAdmin();
+      allow create: if isAuthenticated() && request.resource.data.ownerId == request.auth.uid;
+      allow update: if (isAuthenticated() && resource.data.ownerId == request.auth.uid) || isAdmin();
+      allow delete: if (isAuthenticated() && resource.data.ownerId == request.auth.uid) || isAdmin();
+
+      match /memoryRefs/{memoryId} {
+        allow read, write: if isAuthenticated() && 
+          get(/databases/$(database)/documents/projects/$(projectId)).data.ownerId == request.auth.uid;
+      }
+
+      match /revisions/{revisionId} {
+        allow read, write: if isAuthenticated() && 
+          get(/databases/$(database)/documents/projects/$(projectId)).data.ownerId == request.auth.uid;
+      }
+    }
+
+    // 3. Memories collection (Top-level reusable records)
+    match /memories/{memoryId} {
+      allow read: if (isAuthenticated() && resource.data.ownerId == request.auth.uid) || isAdmin();
+      allow create: if isAuthenticated() && request.resource.data.ownerId == request.auth.uid;
+      allow update: if (isAuthenticated() && resource.data.ownerId == request.auth.uid) || isAdmin();
+      allow delete: if (isAuthenticated() && resource.data.ownerId == request.auth.uid) || isAdmin();
+    }
+
+    // 4. Media metadata collection
+    match /media/{mediaId} {
+      allow read: if (isAuthenticated() && resource.data.ownerId == request.auth.uid) || isAdmin();
+      allow create: if isAuthenticated() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if (isAuthenticated() && resource.data.ownerId == request.auth.uid) || isAdmin();
+    }
+
+    // 5. Templates collection
+    match /templates/{templateId} {
+      allow read: if resource.data.isActive == true || isAdmin();
+      allow write: if isAdmin();
+      
+      match /versions/{versionId} {
+        allow read: if true;
+        allow write: if isAdmin();
+      }
+    }
+
+    // 6. Published Sites (Sanitized public snapshots)
+    match /publishedSites/{slug} {
+      allow read: if resource.data.status == 'ACTIVE' && 
+        (resource.data.visibility in ['PUBLIC', 'UNLISTED'] || 
+         (resource.data.visibility == 'PASSWORD') ||
+         (isAuthenticated() && resource.data.ownerId == request.auth.uid) ||
+         isAdmin());
+      allow write: if isAdmin(); // In production, written exclusively via trusted Cloud Functions
+    }
+
+    // 7. Site Access Sessions (Password verification tokens)
+    match /siteAccessSessions/{sessionId} {
+      allow read, write: if false; // Accessed strictly by backend Cloud Functions
+    }
+
+    // 8. Entitlements & Subscriptions
+    match /entitlements/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if isAdmin();
+    }
+    
+    match /subscriptions/{subscriptionId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow write: if isAdmin();
+    }
+
+    // 9. Analytics Daily Aggregates
+    match /analyticsDaily/{analyticsId} {
+      allow read: if isAuthenticated() && 
+        (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow write: if false; // Aggregated by backend tasks/endpoints
+    }
+
+    // 10. Audit Logs and System Config
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /systemConfig/{configId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+  }
+}

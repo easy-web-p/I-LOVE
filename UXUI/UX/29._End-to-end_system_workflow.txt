@@ -1,0 +1,24 @@
+Visitor opens platform
+→ Creates account
+→ Completes onboarding
+→ Selects website occasion
+→ Selects template
+→ Creates project
+→ Enters recipient information
+→ Uploads media
+→ Selects saved memories
+→ Template engine creates sections
+→ User edits website
+→ Auto-save stores draft
+→ User previews all device sizes
+→ Publishing validation runs
+→ User selects privacy and schedule
+→ Backend verifies ownership and plan
+→ Published snapshot is created
+→ URL is returned
+→ User shares website
+→ Recipient opens URL
+→ Access rules are evaluated
+→ Website is rendered
+→ Privacy-safe analytics event is recorded
+→ Owner views analytics

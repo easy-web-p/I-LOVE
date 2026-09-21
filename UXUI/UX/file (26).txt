@@ -1,0 +1,7 @@
+Scheduled backend task runs
+→ Find upcoming important dates
+→ Calculate reminder time using stored timezone
+→ Check user preferences
+→ Create notification
+→ Send email when enabled
+→ Record delivery status

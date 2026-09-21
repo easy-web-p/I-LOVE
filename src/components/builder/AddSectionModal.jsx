@@ -12,7 +12,10 @@ import {
   Music,
   Video,
   MousePointer,
-  Heart
+  Heart,
+  MapPin,
+  User,
+  Calendar
 } from "lucide-react";
 
 export const AVAILABLE_SECTION_TYPES = [
@@ -116,6 +119,88 @@ export const AVAILABLE_SECTION_TYPES = [
     defaultContent: {
       quote: "การได้รักและถูกรัก คือของขวัญที่ดีที่สุดในชีวิต",
       author: "จากใจ"
+    }
+  },
+  {
+    type: "IMAGE",
+    name: "รูปภาพเดี่ยว / โพลารอยด์",
+    description: "รูปภาพไฮไลต์เดี่ยวพร้อมกรอบโพลารอยด์และแคปชัน",
+    icon: Image,
+    defaultContent: {
+      url: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=800",
+      caption: "ภาพแห่งความทรงจำแสนพิเศษ",
+      style: "polaroid"
+    }
+  },
+  {
+    type: "VIDEO",
+    name: "วิดีโอเซอร์ไพรส์",
+    description: "เล่นคลิปวิดีโอหรือ YouTube บันทึกโมเมนต์น่ารัก",
+    icon: Video,
+    defaultContent: {
+      title: "วิดีโอความทรงจำของเรา 🎬",
+      subtitle: "ย้อนดูช่วงเวลาแห่งความสุข",
+      videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    }
+  },
+  {
+    type: "MUSIC",
+    name: "เครื่องเล่นเพลงโรแมนติก",
+    description: "เพลงประกอบเว็บไซต์พร้อมตัวควบคุมเสียงและคลื่นเสียง",
+    icon: Music,
+    defaultContent: {
+      title: "คู่ชีวิต (Our Song)",
+      artist: "Cocktail",
+      audioUrl: ""
+    }
+  },
+  {
+    type: "PERSON_PROFILE",
+    name: "โปรไฟล์คนพิเศษ",
+    description: "การ์ดแนะนำตัวคนพิเศษ รูปถ่าย ฉายา และข้อความบอกรัก",
+    icon: User,
+    defaultContent: {
+      name: "เมย์ สุจิตรา",
+      nickname: "คนเก่ง",
+      photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300",
+      bio: "ชอบดื่มมัทฉะลาเต้ รักน้องแมว และเป็นรอยยิ้มที่ดีที่สุดในโลก",
+      tagline: "อยู่เป็นความสุขของกันและกันแบบนี้ไปนานๆ นะ"
+    }
+  },
+  {
+    type: "MAP",
+    name: "ปักหมุดสถานที่สำคัญ",
+    description: "การ์ดสถานที่แห่งความทรงจำ เช่น จุดที่พบกันครั้งแรก",
+    icon: MapPin,
+    defaultContent: {
+      locationName: "Siam Square คาเฟ่ที่เราเจอกันครั้งแรก ☕",
+      address: "สยามสแควร์ กรุงเทพมหานคร",
+      note: "วันที่ฝนตกและเราได้สบตากันเป็นครั้งแรก",
+      mapUrl: "https://maps.google.com"
+    }
+  },
+  {
+    type: "BUTTON",
+    name: "ปุ่ม Call-to-Action",
+    description: "ปุ่มพิเศษสำหรับตอบรับ เช่น ตอบตกลง หรือส่งข้อความ",
+    icon: MousePointer,
+    defaultContent: {
+      title: "เธอจะตอบตกลงไหม? 💕",
+      subtitle: "แตะที่ปุ่มด้านล่างเพื่อส่งสัญญาณ",
+      label: "ตอบตกลง ❤️",
+      actionUrl: ""
+    }
+  },
+  {
+    type: "IMPORTANT_DATE",
+    name: "การ์ดวันสำคัญ",
+    description: "แสดงวันครบรอบหรือวันเกิดแบบการ์ดไฮไลต์",
+    icon: Calendar,
+    defaultContent: {
+      badge: "💍 วันครบรอบของเรา",
+      title: "Our 2nd Anniversary",
+      date: "20 ตุลาคม 2026",
+      description: "2 ปีแล้วที่เราจับมือและเติบโตไปด้วยกัน รักเธอมากขึ้นทุกวัน"
     }
   }
 ];

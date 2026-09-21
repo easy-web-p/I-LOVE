@@ -1,0 +1,6 @@
+Image upload
+→ Preview
+→ Slug management
+→ Published snapshot
+→ Public website renderer
+→ Sharing

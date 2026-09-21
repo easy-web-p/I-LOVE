@@ -1,0 +1,21 @@
+User
+├── owns Memories
+├── owns Important Dates
+├── owns Media
+├── owns Projects
+└── receives Entitlements
+
+Project
+├── selects one Template
+├── contains ordered Sections
+├── references Memories
+├── references Media
+├── has Privacy Settings
+└── creates a Published Snapshot
+
+Published Snapshot
+├── is accessed through a Slug
+├── contains sanitized public content
+├── enforces access rules
+├── may have reveal and expiration times
+└── produces analytics

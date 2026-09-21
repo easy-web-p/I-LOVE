@@ -1,0 +1,16 @@
+Local development
+→ Firebase Emulator Suite
+
+Feature branch
+→ GitHub pull request
+→ Automated checks
+→ Firebase preview channel
+
+Develop branch
+→ Development environment
+
+Release branch
+→ Staging environment
+
+Main branch
+→ Production deployment

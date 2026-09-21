@@ -15,10 +15,11 @@ import {
   Sparkles,
   Clock,
   Heart,
-  HardDrive
+  HardDrive,
+  BarChart3
 } from "lucide-react";
 
-export function DashboardPage({ setActivePage, onOpenPublish, onOpenShare }) {
+export function DashboardPage({ setActivePage, onOpenPublish, onOpenShare, onOpenAnalytics }) {
   const {
     currentUser,
     projects,
@@ -336,6 +337,16 @@ export function DashboardPage({ setActivePage, onOpenPublish, onOpenShare }) {
                               <Share2 size={14} /> แชร์ลิงก์
                             </button>
                           )}
+                          <button
+                            onClick={() => {
+                              setActiveMenuId(null);
+                              if (onOpenAnalytics) onOpenAnalytics(proj);
+                            }}
+                            className="btn btn-ghost btn-sm"
+                            style={{ width: "100%", justifyContent: "flex-start", color: "var(--color-primary)" }}
+                          >
+                            <BarChart3 size={14} /> ดูสถิติ (Analytics)
+                          </button>
                           <button
                             onClick={() => {
                               setActiveMenuId(null);

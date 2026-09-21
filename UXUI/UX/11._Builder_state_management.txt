@@ -1,0 +1,11 @@
+Builder State
+├── Current project
+├── Selected section
+├── Section order
+├── Device preview
+├── Zoom
+├── Save status
+├── Change history
+├── Upload state
+├── Validation errors
+└── Unsaved changes

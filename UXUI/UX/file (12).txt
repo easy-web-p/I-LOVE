@@ -1,0 +1,8 @@
+1. Memory Management System
+   Stores stories, media, dates, and reusable personal information.
+
+2. Template Website Builder
+   Converts user content into structured, editable website sections.
+
+3. Publishing Platform
+   Produces privacy-controlled websites with links, schedules, and analytics.

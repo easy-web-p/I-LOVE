@@ -1,0 +1,61 @@
+memory-website-builder/
+├── apps/
+│   └── web/
+│       ├── public/
+│       └── src/
+│           ├── app/
+│           │   ├── router/
+│           │   └── providers/
+│           ├── assets/
+│           ├── components/
+│           │   ├── common/
+│           │   ├── forms/
+│           │   └── navigation/
+│           ├── features/
+│           │   ├── auth/
+│           │   ├── dashboard/
+│           │   ├── projects/
+│           │   ├── builder/
+│           │   ├── templates/
+│           │   ├── memories/
+│           │   ├── media/
+│           │   ├── important-dates/
+│           │   ├── publishing/
+│           │   ├── sharing/
+│           │   ├── analytics/
+│           │   ├── billing/
+│           │   └── admin/
+│           ├── layouts/
+│           ├── pages/
+│           ├── services/
+│           ├── stores/
+│           ├── schemas/
+│           ├── hooks/
+│           ├── utils/
+│           ├── config/
+│           └── templates/
+├── functions/
+│   └── src/
+│       ├── auth/
+│       ├── projects/
+│       ├── publishing/
+│       ├── protected-sites/
+│       ├── media/
+│       ├── notifications/
+│       ├── analytics/
+│       ├── billing/
+│       ├── admin/
+│       ├── shared/
+│       └── index.js
+├── packages/
+│   ├── section-schema/
+│   ├── template-engine/
+│   ├── validation/
+│   └── shared-types/
+├── docs/
+├── tests/
+├── firestore.rules
+├── firestore.indexes.json
+├── storage.rules
+├── firebase.json
+└── package.json

@@ -1,0 +1,24 @@
+{
+  "ownerId": "user-id",
+  "title": "Our First Meeting",
+  "description": "The day we first met",
+  "eventDate": "Timestamp",
+  "timezone": "Asia/Bangkok",
+  "category": "LOVE",
+  "location": {
+    "name": "Bangkok",
+    "latitude": null,
+    "longitude": null
+  },
+  "mediaIds": [
+    "media-id-1",
+    "media-id-2"
+  ],
+  "tags": [
+    "first-date",
+    "relationship"
+  ],
+  "visibility": "PRIVATE",
+  "createdAt": "Timestamp",
+  "updatedAt": "Timestamp"
+}

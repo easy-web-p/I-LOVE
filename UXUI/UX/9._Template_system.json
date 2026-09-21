@@ -1,0 +1,24 @@
+{
+  "name": "Pink Birthday Dream",
+  "slug": "pink-birthday-dream",
+  "description": "A soft birthday template",
+  "category": "BIRTHDAY",
+  "styleTags": ["CUTE", "ROMANTIC"],
+  "accessLevel": "FREE",
+  "status": "ACTIVE",
+  "thumbnailURL": "https://...",
+  "previewURLs": [],
+  "supportedSections": [
+    "HERO",
+    "MESSAGE",
+    "GALLERY",
+    "TIMELINE",
+    "COUNTDOWN",
+    "FOOTER"
+  ],
+  "defaultTheme": {},
+  "defaultSections": [],
+  "version": 1,
+  "createdAt": "Timestamp",
+  "updatedAt": "Timestamp"
+}

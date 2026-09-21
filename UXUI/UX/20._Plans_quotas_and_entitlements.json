@@ -1,0 +1,10 @@
+{
+  "maxProjects": 10,
+  "maxStorageBytes": 5368709120,
+  "maxImagesPerProject": 200,
+  "premiumTemplates": true,
+  "passwordProtection": true,
+  "scheduledReveal": true,
+  "removeBranding": true,
+  "analyticsLevel": "ADVANCED"
+}

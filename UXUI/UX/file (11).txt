@@ -1,0 +1,8 @@
+Authentication
+→ Dashboard
+→ Project
+→ Template แรก
+→ Editor
+→ Upload รูป
+→ Preview
+→ Publish

@@ -1,0 +1,7 @@
+User submits registration form
+→ Frontend validates input
+→ Firebase Authentication creates account
+→ System creates users/{uid}
+→ Verification email is sent
+→ User is redirected to onboarding
+→ User chooses first website occasion

@@ -1,0 +1,14 @@
+users/
+└── {uid}/
+    ├── profile/
+    ├── memories/
+    │   └── {memoryId}/
+    │       ├── original/
+    │       ├── optimized/
+    │       └── thumbnails/
+    └── projects/
+        └── {projectId}/
+            ├── images/
+            ├── videos/
+            ├── audio/
+            └── temporary/

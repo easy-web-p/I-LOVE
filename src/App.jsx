@@ -16,6 +16,8 @@ import { TemplatesPage } from "./pages/TemplatesPage";
 import { BillingPage } from "./pages/BillingPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { PublishedSitePage } from "./pages/PublishedSitePage";
+import { AdminPage } from "./pages/AdminPage";
+import { AnalyticsModal } from "./components/analytics/AnalyticsModal";
 
 function AppContent() {
   // Navigation State
@@ -42,6 +44,7 @@ function AppContent() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [publishModalProject, setPublishModalProject] = useState(null);
   const [shareModalSlug, setShareModalSlug] = useState(null);
+  const [analyticsModalProject, setAnalyticsModalProject] = useState(null);
 
   // Browser History Sync
   useEffect(() => {
@@ -102,6 +105,7 @@ function AppContent() {
             setActivePage={setActivePage}
             onOpenPublish={(proj) => setPublishModalProject(proj)}
             onOpenShare={(slug) => setShareModalSlug(slug)}
+            onOpenAnalytics={(proj) => setAnalyticsModalProject(proj)}
           />
         )}
 
@@ -117,6 +121,7 @@ function AppContent() {
             setActivePage={setActivePage}
             onOpenPublish={(proj) => setPublishModalProject(proj)}
             onOpenShare={(slug) => setShareModalSlug(slug)}
+            onOpenAnalytics={(proj) => setAnalyticsModalProject(proj)}
           />
         )}
 
@@ -141,6 +146,10 @@ function AppContent() {
 
         {activePage === "settings" && (
           <SettingsPage setActivePage={setActivePage} />
+        )}
+
+        {activePage === "admin" && (
+          <AdminPage setActivePage={setActivePage} />
         )}
 
         {activePage === "published" && (
@@ -178,6 +187,12 @@ function AppContent() {
         onViewSite={(slug) => {
           navigateToPublished(slug);
         }}
+      />
+
+      <AnalyticsModal
+        isOpen={!!analyticsModalProject}
+        onClose={() => setAnalyticsModalProject(null)}
+        project={analyticsModalProject}
       />
     </div>
   );

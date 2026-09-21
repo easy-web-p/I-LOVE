@@ -1,0 +1,13 @@
+Dashboard
+├── Header
+│   ├── Search
+│   ├── Notifications
+│   └── Profile
+├── Primary actions
+│   ├── Create website
+│   └── Add memory
+├── Statistics
+├── Upcoming important dates
+├── Recent websites
+├── Recent memories
+└── Storage and plan usage

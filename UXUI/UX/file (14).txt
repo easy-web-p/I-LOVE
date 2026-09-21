@@ -1,0 +1,6 @@
+Plans
+→ Payments
+→ Entitlements
+→ Premium templates
+→ Password protection
+→ Scheduled reveal

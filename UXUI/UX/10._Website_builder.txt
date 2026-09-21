@@ -1,0 +1,12 @@
+Builder
+├── Top bar
+│   ├── Back
+│   ├── Project name
+│   ├── Save status
+│   ├── Undo/redo
+│   ├── Preview
+│   └── Publish
+├── Section navigator
+├── Live preview canvas
+├── Property editor
+└── Device and zoom controls

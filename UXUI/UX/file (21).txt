@@ -1,0 +1,8 @@
+Visitor opens website
+→ Backend returns password challenge page
+→ Visitor submits password
+→ Backend verifies password hash
+→ Short-lived signed access session is created
+→ Visitor requests protected published content
+→ Backend validates session
+→ Content is returned

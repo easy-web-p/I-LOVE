@@ -1,0 +1,6 @@
+Visitor opens URL
+→ Server checks current time
+→ Server compares revealAt and expiresAt
+├── Before revealAt → Return countdown screen
+├── Within valid period → Return website
+└── After expiresAt → Return expired screen

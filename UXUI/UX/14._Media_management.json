@@ -1,0 +1,16 @@
+{
+  "ownerId": "user-id",
+  "projectId": "project-id",
+  "memoryId": null,
+  "type": "IMAGE",
+  "purpose": "GALLERY",
+  "storagePath": "users/user-id/projects/project-id/images/file.webp",
+  "downloadURL": "https://...",
+  "fileName": "file.webp",
+  "mimeType": "image/webp",
+  "sizeBytes": 524288,
+  "width": 1600,
+  "height": 900,
+  "status": "READY",
+  "createdAt": "Timestamp"
+}

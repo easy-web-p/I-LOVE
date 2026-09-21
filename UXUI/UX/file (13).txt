@@ -1,0 +1,5 @@
+Analytics
+→ Notifications
+→ QR codes
+→ Automatic website generation
+→ Custom domains

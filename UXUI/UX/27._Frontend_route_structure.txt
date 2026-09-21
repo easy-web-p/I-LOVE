@@ -1,0 +1,34 @@
+/
+├── templates
+├── examples
+├── pricing
+├── login
+├── register
+├── forgot-password
+├── verify-email
+├── app
+│   ├── dashboard
+│   ├── websites
+│   ├── websites/new
+│   ├── websites/:projectId/edit
+│   ├── websites/:projectId/preview
+│   ├── websites/:projectId/settings
+│   ├── websites/:projectId/analytics
+│   ├── memories
+│   ├── memories/new
+│   ├── memories/:memoryId
+│   ├── important-dates
+│   ├── templates
+│   ├── notifications
+│   ├── billing
+│   └── settings
+├── s/:slug
+└── admin
+    ├── users
+    ├── projects
+    ├── sites
+    ├── templates
+    ├── payments
+    ├── reports
+    ├── analytics
+    └── settings

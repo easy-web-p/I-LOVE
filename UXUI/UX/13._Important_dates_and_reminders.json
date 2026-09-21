@@ -1,0 +1,24 @@
+{
+  "ownerId": "user-id",
+  "title": "Our Anniversary",
+  "type": "ANNIVERSARY",
+  "eventDate": "Timestamp",
+  "timezone": "Asia/Bangkok",
+  "repeat": "YEARLY",
+  "reminders": [
+    {
+      "offsetDays": 7,
+      "channel": "EMAIL",
+      "enabled": true
+    },
+    {
+      "offsetDays": 1,
+      "channel": "IN_APP",
+      "enabled": true
+    }
+  ],
+  "relatedMemoryId": null,
+  "relatedProjectId": null,
+  "createdAt": "Timestamp",
+  "updatedAt": "Timestamp"
+}

@@ -1,0 +1,14 @@
+User selects Publish
+→ Frontend validates basic input
+→ Callable backend function receives request
+→ Backend authenticates user
+→ App Check is validated
+→ Project ownership is verified
+→ Plan entitlements are verified
+→ Slug is validated and reserved
+→ Project content is validated
+→ Memory references are resolved
+→ Private fields are removed
+→ Published snapshot is created
+→ Project status is updated
+→ Public URL is returned

@@ -256,6 +256,65 @@ export function AppProvider({ children }) {
     showToast("ออกจากระบบเรียบร้อยแล้ว", "info");
   };
 
+  // Entitlements & Role Separation (Section 2 & 20)
+  const entitlements = {
+    canUsePremiumTemplates: currentUser?.plan !== "FREE",
+    canPasswordProtect: currentUser?.plan !== "FREE",
+    canScheduleReveal: currentUser?.plan !== "FREE",
+    canUploadVideo: currentUser?.plan !== "FREE",
+    canCustomMusic: currentUser?.plan !== "FREE",
+    canRemoveBranding: currentUser?.plan !== "FREE",
+    maxProjects: currentUser?.plan === "FREE" ? 3 : 50,
+    maxStorageMB: currentUser?.plan === "FREE" ? 100 : 5000,
+    canAccessAdmin: currentUser?.role === "ADMIN" || currentUser?.role === "SUPER_ADMIN"
+  };
+
+  const switchUserRole = (newRole) => {
+    setCurrentUser((prev) => prev ? { ...prev, role: newRole } : prev);
+    showToast(`เปลี่ยนสิทธิ์ผู้ใช้เป็น: ${newRole}`);
+  };
+
+  const switchUserPlan = (newPlan) => {
+    setCurrentUser((prev) => prev ? { ...prev, plan: newPlan } : prev);
+    showToast(`ปรับเปลี่ยนแพ็กเกจเป็น: ${newPlan} เรียบร้อยแล้ว 🎉`);
+  };
+
+  // Template Switching with Content Preservation (Section 9.3)
+  const changeProjectTemplate = (projectId, newTemplateId) => {
+    const template = TEMPLATES.find((t) => t.id === newTemplateId);
+    if (!template) return;
+
+    setProjects((prev) =>
+      prev.map((p) => {
+        if (p.id === projectId) {
+          const existingSections = p.sections || [];
+          const newTemplateSections = template.sections || [];
+
+          const mergedSections = newTemplateSections.map((newSec) => {
+            const matchedExisting = existingSections.find((ex) => ex.type === newSec.type);
+            if (matchedExisting) {
+              return {
+                ...newSec,
+                content: { ...newSec.content, ...matchedExisting.content }
+              };
+            }
+            return newSec;
+          });
+
+          return {
+            ...p,
+            templateId: newTemplateId,
+            theme: { ...template.theme },
+            sections: mergedSections,
+            updatedAt: new Date().toISOString()
+          };
+        }
+        return p;
+      })
+    );
+    showToast(`เปลี่ยน Template เป็น "${template.name}" พร้อมคงเนื้อหาเดิมเรียบร้อย ✨`);
+  };
+
   // Project Operations
   const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0];
 
@@ -545,6 +604,10 @@ export function AppProvider({ children }) {
         createImportantDate,
         deleteImportantDate,
         getPublishedSiteBySlug,
+        entitlements,
+        switchUserRole,
+        switchUserPlan,
+        changeProjectTemplate,
         toasts,
         showToast
       }}

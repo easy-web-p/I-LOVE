@@ -1,0 +1,16 @@
+{
+  "userId": "user-id",
+  "type": "IMPORTANT_DATE_REMINDER",
+  "title": "Anniversary in 7 days",
+  "message": "Prepare something special for your anniversary.",
+  "relatedResource": {
+    "type": "IMPORTANT_DATE",
+    "id": "date-id"
+  },
+  "read": false,
+  "delivery": {
+    "inApp": "DELIVERED",
+    "email": "DELIVERED"
+  },
+  "createdAt": "Timestamp"
+}

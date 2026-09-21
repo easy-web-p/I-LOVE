@@ -1,0 +1,11 @@
+projects/{projectId}/memoryRefs/{memoryId}
+json
+{
+  "memoryId": "memory-id",
+  "order": 1,
+  "included": true,
+  "displayOverrides": {
+    "title": null,
+    "description": null
+  }
+}

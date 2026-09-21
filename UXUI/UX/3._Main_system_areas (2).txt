@@ -1,0 +1,10 @@
+/
+├── /templates
+├── /examples
+├── /pricing
+├── /login
+├── /register
+├── /forgot-password
+├── /privacy
+├── /terms
+└── /s/:slug

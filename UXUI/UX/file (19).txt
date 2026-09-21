@@ -1,0 +1,6 @@
+Visitor opens published website
+→ Client creates privacy-safe event
+→ Analytics endpoint validates request
+→ Event is aggregated
+→ Daily summary is updated
+→ Owner sees summary in dashboard

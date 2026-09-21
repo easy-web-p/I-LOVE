@@ -1,0 +1,30 @@
+{
+  "ownerId": "user-id",
+  "title": "Happy Birthday May",
+  "description": "A birthday surprise website",
+  "category": "BIRTHDAY",
+  "templateId": "birthday-pink-01",
+  "templateVersion": 1,
+  "status": "DRAFT",
+  "visibility": "UNLISTED",
+  "slug": null,
+  "coverMediaId": "media-id",
+  "theme": {
+    "backgroundColor": "#FFF9FB",
+    "textColor": "#33252E",
+    "accentColor": "#E85D8E",
+    "headingFont": "Mali",
+    "bodyFont": "Noto Sans Thai"
+  },
+  "sections": [],
+  "settings": {
+    "brandingEnabled": true,
+    "analyticsEnabled": true,
+    "commentsEnabled": false
+  },
+  "revealAt": null,
+  "expiresAt": null,
+  "publishedAt": null,
+  "createdAt": "Timestamp",
+  "updatedAt": "Timestamp"
+}

@@ -1,0 +1,10 @@
+Choose occasion
+→ Choose template
+→ Enter recipient name
+→ Enter greeting
+→ Select important date
+→ Upload cover photo
+→ Select memories
+→ Generate website
+→ Preview
+→ Publish

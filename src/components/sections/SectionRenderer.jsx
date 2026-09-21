@@ -14,7 +14,12 @@ import {
   Camera,
   MapPin,
   Lock,
-  Unlock
+  Unlock,
+  Video,
+  Music,
+  User,
+  Radio,
+  CheckCircle2
 } from "lucide-react";
 
 export function SectionRenderer({
@@ -650,6 +655,360 @@ export function SectionRenderer({
               — {section.content.author}
             </div>
           )}
+        </div>
+      )}
+
+      {/* 10. SINGLE IMAGE SECTION */}
+      {section.type === "IMAGE" && (
+        <div style={{ maxWidth: "600px", margin: "0 auto", textAlign: "center" }}>
+          <div
+            className="card card-hoverable"
+            style={{
+              padding: section.content.style === "polaroid" ? "16px 16px 24px" : "0",
+              borderRadius: "var(--radius-lg)",
+              overflow: "hidden",
+              background: "#FFFFFF",
+              border: "1px solid var(--color-border)",
+              boxShadow: "var(--shadow-card)"
+            }}
+          >
+            <img
+              src={section.content.url || "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=800"}
+              alt={section.content.caption || "ภาพแห่งความทรงจำ"}
+              style={{
+                width: "100%",
+                maxHeight: "420px",
+                objectFit: "cover",
+                borderRadius: section.content.style === "polaroid" ? "var(--radius-sm)" : "0",
+                display: "block"
+              }}
+            />
+            {section.content.caption && (
+              <div
+                style={{
+                  padding: "16px 20px",
+                  fontFamily: headingFontFamily,
+                  fontSize: "17px",
+                  color: "var(--color-text-primary)"
+                }}
+              >
+                {section.content.caption}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 11. VIDEO SECTION */}
+      {section.type === "VIDEO" && (
+        <div style={{ maxWidth: "720px", margin: "0 auto", textAlign: "center" }}>
+          {section.content.title && (
+            <h2
+              style={{
+                fontFamily: headingFontFamily,
+                fontSize: "24px",
+                color: theme.accentColor || "var(--color-primary)",
+                marginBottom: "8px"
+              }}
+            >
+              {section.content.title}
+            </h2>
+          )}
+          {section.content.subtitle && (
+            <p style={{ color: "var(--color-text-secondary)", fontSize: "15px", marginBottom: "20px" }}>
+              {section.content.subtitle}
+            </p>
+          )}
+          <div
+            style={{
+              position: "relative",
+              paddingBottom: "56.25%",
+              height: 0,
+              overflow: "hidden",
+              borderRadius: "var(--radius-lg)",
+              boxShadow: "var(--shadow-card)",
+              background: "#000"
+            }}
+          >
+            {section.content.videoUrl && section.content.videoUrl.includes("youtube") ? (
+              <iframe
+                src={section.content.videoUrl.replace("watch?v=", "embed/")}
+                title={section.content.title || "Video"}
+                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: 0 }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <video
+                src={section.content.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"}
+                controls
+                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+              />
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 12. MUSIC PLAYER SECTION */}
+      {section.type === "MUSIC" && (
+        <div style={{ maxWidth: "560px", margin: "0 auto" }}>
+          <div
+            className="card"
+            style={{
+              padding: "24px 28px",
+              borderRadius: "var(--radius-lg)",
+              border: "1px solid var(--color-border)",
+              background: "linear-gradient(135deg, #FFF0F5 0%, #FFFFFF 100%)",
+              boxShadow: "var(--shadow-card)",
+              display: "flex",
+              alignItems: "center",
+              gap: "20px"
+            }}
+          >
+            <div
+              onClick={() => setIsPlayingMusic(!isPlayingMusic)}
+              style={{
+                width: "56px",
+                height: "56px",
+                borderRadius: "50%",
+                background: "var(--color-primary)",
+                color: "#FFF",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                boxShadow: "0 4px 14px rgba(232, 93, 142, 0.4)",
+                flexShrink: 0
+              }}
+            >
+              {isPlayingMusic ? <Pause size={24} /> : <Play size={24} style={{ marginLeft: "3px" }} />}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
+                <Music size={15} color="var(--color-primary)" />
+                <span style={{ fontSize: "12px", color: "var(--color-primary)", fontWeight: 600, textTransform: "uppercase" }}>
+                  เพลงประจำความทรงจำ
+                </span>
+              </div>
+              <h3 style={{ fontSize: "17px", fontWeight: 700, color: "var(--color-text-primary)", marginBottom: "2px" }}>
+                {section.content.title || "คู่ชีวิต (Our Song)"}
+              </h3>
+              <p style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}>
+                {section.content.artist || "Cocktail"}
+              </p>
+            </div>
+            <div style={{ display: "flex", gap: "3px", alignItems: "flex-end", height: "24px" }}>
+              {[12, 20, 15, 24, 18, 10].map((h, i) => (
+                <span
+                  key={i}
+                  style={{
+                    width: "3px",
+                    height: isPlayingMusic ? `${h}px` : "6px",
+                    background: "var(--color-primary)",
+                    borderRadius: "2px",
+                    transition: "height 0.3s ease"
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 13. PERSON PROFILE SECTION */}
+      {section.type === "PERSON_PROFILE" && (
+        <div style={{ maxWidth: "620px", margin: "0 auto", textAlign: "center" }}>
+          <div
+            className="card"
+            style={{
+              padding: "36px 28px",
+              borderRadius: "var(--radius-lg)",
+              background: "#FFFFFF",
+              border: "1px solid var(--color-border)",
+              boxShadow: "var(--shadow-card)"
+            }}
+          >
+            <div style={{ position: "relative", width: "120px", height: "120px", margin: "0 auto 20px" }}>
+              <img
+                src={section.content.photoUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300"}
+                alt={section.content.name || "คนพิเศษ"}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  borderRadius: "50%",
+                  border: "4px solid var(--color-primary-light)",
+                  boxShadow: "0 6px 20px rgba(232, 93, 142, 0.25)"
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "2px",
+                  right: "2px",
+                  background: "var(--color-primary)",
+                  color: "#FFF",
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}
+              >
+                <Heart size={16} fill="#FFF" />
+              </div>
+            </div>
+
+            <h2 style={{ fontFamily: headingFontFamily, fontSize: "24px", color: "var(--color-text-primary)", marginBottom: "4px" }}>
+              {section.content.name || "เมย์ สุจิตรา"}
+            </h2>
+            {section.content.nickname && (
+              <span className="badge badge-pill-primary" style={{ marginBottom: "16px", display: "inline-block" }}>
+                ฉายา: {section.content.nickname}
+              </span>
+            )}
+            {section.content.bio && (
+              <p style={{ fontSize: "15px", lineHeight: 1.7, color: "var(--color-text-secondary)", marginBottom: "20px" }}>
+                {section.content.bio}
+              </p>
+            )}
+            {section.content.tagline && (
+              <div
+                style={{
+                  padding: "12px 18px",
+                  background: "var(--color-bg)",
+                  borderRadius: "var(--radius-md)",
+                  fontSize: "14px",
+                  fontStyle: "italic",
+                  color: "var(--color-primary)"
+                }}
+              >
+                “{section.content.tagline}”
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 14. MAP & MEMORABLE LOCATION SECTION */}
+      {section.type === "MAP" && (
+        <div style={{ maxWidth: "680px", margin: "0 auto", textAlign: "center" }}>
+          <div
+            className="card"
+            style={{
+              padding: "32px 24px",
+              borderRadius: "var(--radius-lg)",
+              background: "#FFFFFF",
+              border: "1px solid var(--color-border)",
+              boxShadow: "var(--shadow-card)"
+            }}
+          >
+            <div
+              style={{
+                width: "48px",
+                height: "48px",
+                borderRadius: "50%",
+                background: "var(--color-primary-light)",
+                color: "var(--color-primary)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 16px"
+              }}
+            >
+              <MapPin size={24} />
+            </div>
+            <h2 style={{ fontFamily: headingFontFamily, fontSize: "22px", color: "var(--color-text-primary)", marginBottom: "8px" }}>
+              {section.content.locationName || "สถานที่แห่งความทรงจำ"}
+            </h2>
+            {section.content.address && (
+              <p style={{ fontSize: "14.5px", color: "var(--color-text-secondary)", marginBottom: "16px" }}>
+                {section.content.address}
+              </p>
+            )}
+            {section.content.note && (
+              <p style={{ fontSize: "14px", color: "var(--color-primary)", fontStyle: "italic", marginBottom: "24px" }}>
+                {section.content.note}
+              </p>
+            )}
+            {section.content.mapUrl ? (
+              <a
+                href={section.content.mapUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-secondary btn-sm"
+              >
+                <ExternalLink size={15} />
+                เปิดดูใน Google Maps
+              </a>
+            ) : null}
+          </div>
+        </div>
+      )}
+
+      {/* 15. CALL TO ACTION BUTTON SECTION */}
+      {section.type === "BUTTON" && (
+        <div style={{ maxWidth: "540px", margin: "0 auto", textAlign: "center" }}>
+          {section.content.title && (
+            <h2 style={{ fontFamily: headingFontFamily, fontSize: "22px", marginBottom: "8px" }}>
+              {section.content.title}
+            </h2>
+          )}
+          {section.content.subtitle && (
+            <p style={{ color: "var(--color-text-secondary)", fontSize: "14.5px", marginBottom: "20px" }}>
+              {section.content.subtitle}
+            </p>
+          )}
+          <button
+            className="btn btn-primary btn-lg"
+            style={{
+              padding: "14px 36px",
+              fontSize: "17px",
+              boxShadow: "0 8px 24px rgba(232, 93, 142, 0.35)"
+            }}
+            onClick={() => {
+              confetti({ particleCount: 80, spread: 70 });
+              if (section.content.actionUrl) {
+                window.open(section.content.actionUrl, "_blank");
+              }
+            }}
+          >
+            <Heart size={18} fill="#FFF" />
+            {section.content.label || "ตอบตกลง ❤️"}
+          </button>
+        </div>
+      )}
+
+      {/* 16. IMPORTANT DATE SECTION */}
+      {section.type === "IMPORTANT_DATE" && (
+        <div style={{ maxWidth: "600px", margin: "0 auto", textAlign: "center" }}>
+          <div
+            className="card"
+            style={{
+              padding: "32px 24px",
+              borderRadius: "var(--radius-lg)",
+              border: "1px solid rgba(232, 93, 142, 0.3)",
+              background: "linear-gradient(180deg, #FFFFFF 0%, #FFFDFE 100%)",
+              boxShadow: "var(--shadow-card)"
+            }}
+          >
+            <span className="badge badge-pill-primary" style={{ marginBottom: "12px" }}>
+              <Calendar size={13} style={{ marginRight: "4px" }} />
+              {section.content.badge || "วันสำคัญของเรา"}
+            </span>
+            <h2 style={{ fontFamily: headingFontFamily, fontSize: "24px", color: "var(--color-primary)", marginBottom: "8px" }}>
+              {section.content.title || "วันครบรอบ"}
+            </h2>
+            <div style={{ fontSize: "20px", fontWeight: 700, color: "var(--color-text-primary)", marginBottom: "12px" }}>
+              {section.content.date || "20 ตุลาคม 2026"}
+            </div>
+            {section.content.description && (
+              <p style={{ fontSize: "14.5px", color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
+                {section.content.description}
+              </p>
+            )}
+          </div>
         </div>
       )}
 

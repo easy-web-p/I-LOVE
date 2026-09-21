@@ -1,0 +1,12 @@
+Create project
+→ Select template
+→ Add sections
+→ Edit section content
+→ Configure styles
+→ Select media
+→ Select memories
+→ Reorder sections
+→ Configure animation
+→ Preview
+→ Configure publication
+→ Publish

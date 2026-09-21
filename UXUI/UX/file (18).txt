@@ -1,0 +1,6 @@
+Project setup
+→ Routing
+→ Firebase configuration
+→ Authentication
+→ Security Rules
+→ Application layouts

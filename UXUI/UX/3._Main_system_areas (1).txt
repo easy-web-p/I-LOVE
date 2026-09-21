@@ -1,0 +1,10 @@
+/app
+├── dashboard
+├── websites
+├── memories
+├── important-dates
+├── templates
+├── notifications
+├── analytics
+├── billing
+└── settings

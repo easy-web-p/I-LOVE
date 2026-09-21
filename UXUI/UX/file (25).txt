@@ -1,0 +1,8 @@
+User selects file
+→ Client checks size and extension
+→ Backend or Storage Rules verify MIME type and ownership
+→ File uploads to temporary path
+→ Progress is displayed
+→ Thumbnail or optimized image is generated
+→ Media document is created
+→ File is linked to memory or project
