@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import { SectionPanel } from "../components/builder/SectionPanel";
 import { PropertiesPanel } from "../components/builder/PropertiesPanel";
@@ -37,9 +37,18 @@ export function WebsiteBuilderPage({ setActivePage, onOpenPublish, onOpenShare, 
   const [isFullscreenPreview, setIsFullscreenPreview] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(100); // 50, 75, 100, 125
 
-  // Undo / Redo History Stack (Section 11)
+  // Undo / Redo History Stack (Section 11 & §3.3)
   const [history, setHistory] = useState([activeProject?.sections || []]);
   const [historyIndex, setHistoryIndex] = useState(0);
+
+  // Reset history stack when switching between projects (§3.3)
+  useEffect(() => {
+    if (activeProject?.id) {
+      setHistory([activeProject.sections || []]);
+      setHistoryIndex(0);
+      setSelectedSectionId(activeProject.sections?.[0]?.id || null);
+    }
+  }, [activeProject?.id]);
 
   // Mobile Bottom Sheet State (Section 21 Mobile Builder)
   const [mobileActiveDrawer, setMobileActiveDrawer] = useState(null); // 'sections' | 'properties' | null
@@ -82,7 +91,7 @@ export function WebsiteBuilderPage({ setActivePage, onOpenPublish, onOpenShare, 
     }
   };
 
-  // Section Operations
+  // Section Operations - Synchronized with Undo/Redo (§3.3)
   const handleUpdateSection = (updatedSection) => {
     const updatedSections = sections.map((s) => (s.id === updatedSection.id ? updatedSection : s));
     pushHistory(updatedSections);
@@ -93,6 +102,7 @@ export function WebsiteBuilderPage({ setActivePage, onOpenPublish, onOpenShare, 
     const newSections = [...sections];
     const [moved] = newSections.splice(fromIndex, 1);
     newSections.splice(toIndex, 0, moved);
+    pushHistory(newSections);
     updateProject({ sections: newSections }, false);
   };
 
@@ -100,6 +110,7 @@ export function WebsiteBuilderPage({ setActivePage, onOpenPublish, onOpenShare, 
     const newSections = sections.map((s) =>
       s.id === sectionId ? { ...s, enabled: !s.enabled } : s
     );
+    pushHistory(newSections);
     updateProject({ sections: newSections }, false);
   };
 
@@ -114,6 +125,7 @@ export function WebsiteBuilderPage({ setActivePage, onOpenPublish, onOpenShare, 
     const index = sections.findIndex((s) => s.id === sectionId);
     const newSections = [...sections];
     newSections.splice(index + 1, 0, duplicated);
+    pushHistory(newSections);
     updateProject({ sections: newSections });
     setSelectedSectionId(duplicated.id);
   };
@@ -124,6 +136,7 @@ export function WebsiteBuilderPage({ setActivePage, onOpenPublish, onOpenShare, 
       return;
     }
     const newSections = sections.filter((s) => s.id !== sectionId);
+    pushHistory(newSections);
     updateProject({ sections: newSections });
     if (selectedSectionId === sectionId) {
       setSelectedSectionId(newSections[0].id);
@@ -132,6 +145,7 @@ export function WebsiteBuilderPage({ setActivePage, onOpenPublish, onOpenShare, 
 
   const handleAddSection = (newSection) => {
     const newSections = [...sections, newSection];
+    pushHistory(newSections);
     updateProject({ sections: newSections });
     setSelectedSectionId(newSection.id);
   };

@@ -387,6 +387,15 @@ export function AppProvider({ children }) {
     localStorage.setItem(STORAGE_KEYS.DATES, JSON.stringify(importantDates));
   }, [importantDates]);
 
+  // Cleanup timer on unmount (§3.6)
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, []);
+
   // Toast Helper
   const showToast = (message, type = "success") => {
     const id = Date.now() + Math.random();
@@ -398,8 +407,9 @@ export function AppProvider({ children }) {
 
   // Auth Operations (Firebase Authentication Integration)
   const loginWithEmail = async (email, password) => {
-    // Quick Demo bypass for test user
-    if (email === "may.sujitra@example.com") {
+    // Controlled demo bypass strictly behind dev flag (§3.2)
+    const isDemoEnabled = import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_LOGIN === "true";
+    if (isDemoEnabled && email === "may.sujitra@example.com") {
       setCurrentUser(SEED_USER);
       showToast("เข้าสู่ระบบบัญชีตัวอย่างสำเร็จ! ✨");
       return { success: true };
@@ -432,14 +442,14 @@ export function AppProvider({ children }) {
       showToast("เข้าสู่ระบบด้วย Google สำเร็จ! 🎉");
       return { success: true };
     } else {
-      if (res.error?.includes("ปิดก่อน")) {
-        showToast(res.error, "info");
-      } else {
-        // Safe fallback for demo environment
+      const isDemoEnabled = import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_LOGIN === "true";
+      if (isDemoEnabled) {
         setCurrentUser(SEED_USER);
-        showToast("เข้าสู่ระบบสำเร็จ (โหมดด่วน) ✨");
+        showToast("เข้าสู่ระบบสำเร็จ (โหมดจำลอง) ✨");
+        return { success: true };
       }
-      return { success: true };
+      showToast(res.error || "เข้าสู่ระบบด้วย Google ไม่สำเร็จ", "error");
+      return { success: false, error: res.error };
     }
   };
 
@@ -578,15 +588,20 @@ export function AppProvider({ children }) {
     return newProject;
   };
 
-  const updateProject = (updatedFields, debounce = true) => {
+  const updateProject = (targetIdOrFields, maybeFieldsOrDebounce = true, maybeDebounce = true) => {
     setSaveStatus("saving");
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+
+    const isExplicitId = typeof targetIdOrFields === "string";
+    const targetId = isExplicitId ? targetIdOrFields : activeProjectId;
+    const updatedFields = isExplicitId ? (maybeFieldsOrDebounce || {}) : (targetIdOrFields || {});
+    const debounce = isExplicitId ? maybeDebounce : maybeFieldsOrDebounce;
 
     const applyUpdate = () => {
       let updatedProjectToSync = null;
       setProjects((prev) =>
         prev.map((p) => {
-          if (p.id === activeProjectId) {
+          if (p.id === targetId) {
             const updated = {
               ...p,
               ...updatedFields,

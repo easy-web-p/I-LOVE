@@ -3,7 +3,7 @@ import { useApp } from "../context/AppContext";
 import { User, Shield, HardDrive, Bell, Save, Check } from "lucide-react";
 
 export function SettingsPage({ setActivePage }) {
-  const { currentUser, showToast } = useApp();
+  const { currentUser, showToast, switchUserPlan, switchUserRole } = useApp();
 
   const [name, setName] = useState(currentUser?.name || "");
   const [email, setEmail] = useState(currentUser?.email || "");
