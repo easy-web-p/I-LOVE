@@ -9,6 +9,7 @@ const STORAGE_KEYS = {
   PROJECTS: "ilove_projects",
   MEMORIES: "ilove_memories",
   DATES: "ilove_important_dates",
+  NOTIFICATIONS: "ilove_notifications",
   PUBLISHED: "ilove_published_sites"
 };
 
@@ -171,6 +172,39 @@ const SEED_DATES = [
   }
 ];
 
+const SEED_NOTIFICATIONS = [
+  {
+    id: "notif-01",
+    userId: "usr-may-001",
+    type: "IMPORTANT_DATE_REMINDER",
+    title: "อีก 7 วันจะถึงวันครบรอบของเรา 💍",
+    message: "อย่าลืมเตรียมของขวัญและเซอร์ไพรส์พิเศษสำหรับวันที่ 20 ต.ค. นะครับ",
+    relatedResource: { type: "IMPORTANT_DATE", id: "date-01" },
+    read: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString()
+  },
+  {
+    id: "notif-02",
+    userId: "usr-may-001",
+    type: "MILESTONE_VIEW",
+    title: "เว็บไซต์ Happy Birthday มียอดชมครบ 142 ครั้งแล้ว! 🎉",
+    message: "ความทรงจำของคุณสร้างรอยยิ้มและเสียงหัวเราะอย่างงดงาม",
+    relatedResource: { type: "PROJECT", slug: "happy-birthday-may" },
+    read: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString()
+  },
+  {
+    id: "notif-03",
+    userId: "usr-may-001",
+    type: "SYSTEM_TIP",
+    title: "ยินดีต้อนรับสู่ ILOVE Memory Website Builder ❤️",
+    message: "เริ่มต้นด้วยการสร้างความทรงจำแรก หรือเลือก Template สวยงามได้เลย",
+    relatedResource: null,
+    read: true,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString()
+  }
+];
+
 export function AppProvider({ children }) {
   // 1. Auth State
   const [currentUser, setCurrentUser] = useState(() => {
@@ -196,7 +230,46 @@ export function AppProvider({ children }) {
     return saved ? JSON.parse(saved) : SEED_DATES;
   });
 
-  // 5. Active Builder Project
+  // 5. Notifications State (Section 21)
+  const [notifications, setNotifications] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
+    return saved ? JSON.parse(saved) : SEED_NOTIFICATIONS;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
+  }, [notifications]);
+
+  const markNotificationAsRead = (id) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+  };
+
+  const markAllNotificationsAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    showToast("อ่านการแจ้งเตือนทั้งหมดแล้ว", "success");
+  };
+
+  const deleteNotification = (id) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    showToast("ลบการแจ้งเตือนแล้ว", "info");
+  };
+
+  const addNotification = (notif) => {
+    const newNotif = {
+      id: "notif-" + Date.now().toString(36),
+      userId: currentUser?.uid || "usr-guest",
+      read: false,
+      createdAt: new Date().toISOString(),
+      ...notif
+    };
+    setNotifications((prev) => [newNotif, ...prev]);
+  };
+
+  const unreadNotificationsCount = notifications.filter((n) => !n.read).length;
+
+  // 6. Active Builder Project
   const [activeProjectId, setActiveProjectId] = useState("proj-birthday-may");
   const [saveStatus, setSaveStatus] = useState("saved"); // 'saved' | 'saving' | 'error'
   const autoSaveTimerRef = useRef(null);
@@ -608,6 +681,12 @@ export function AppProvider({ children }) {
         importantDates,
         createImportantDate,
         deleteImportantDate,
+        notifications,
+        unreadNotificationsCount,
+        markNotificationAsRead,
+        markAllNotificationsAsRead,
+        deleteNotification,
+        addNotification,
         getPublishedSiteBySlug,
         entitlements,
         switchUserRole,

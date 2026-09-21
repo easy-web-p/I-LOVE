@@ -19,15 +19,24 @@ import { PublishedSitePage } from "./pages/PublishedSitePage";
 import { AdminPage } from "./pages/AdminPage";
 import { AnalyticsModal } from "./components/analytics/AnalyticsModal";
 
+function getPageFromPath(path) {
+  if (path.startsWith("/s/")) return "published";
+  if (path === "/dashboard" || path === "/app/dashboard") return "dashboard";
+  if (path === "/memories" || path === "/app/memories") return "memories";
+  if (path === "/important-dates" || path === "/app/important-dates") return "important-dates";
+  if (path === "/templates") return "templates";
+  if (path === "/billing" || path === "/pricing") return "billing";
+  if (path === "/settings") return "settings";
+  if (path === "/admin") return "admin";
+  if (path === "/projects/new" || path === "/app/websites/new") return "project-wizard";
+  if (path === "/builder") return "builder";
+  return "landing";
+}
+
 function AppContent() {
   // Navigation State
   const [activePage, setActivePage] = useState(() => {
-    // Check if initial URL is a published site e.g. /s/:slug
-    const path = window.location.pathname;
-    if (path.startsWith("/s/")) {
-      return "published";
-    }
-    return "landing";
+    return getPageFromPath(window.location.pathname);
   });
 
   const [publishedSlug, setPublishedSlug] = useState(() => {
@@ -53,11 +62,32 @@ function AppContent() {
       if (path.startsWith("/s/")) {
         setPublishedSlug(path.replace("/s/", ""));
         setActivePage("published");
+      } else {
+        setActivePage(getPageFromPath(path));
       }
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
+
+  const navigateTo = (page, options = {}) => {
+    setActivePage(page);
+    let targetPath = "/";
+    switch (page) {
+      case "dashboard": targetPath = "/dashboard"; break;
+      case "memories": targetPath = "/memories"; break;
+      case "important-dates": targetPath = "/important-dates"; break;
+      case "templates": targetPath = "/templates"; break;
+      case "billing": targetPath = "/billing"; break;
+      case "settings": targetPath = "/settings"; break;
+      case "admin": targetPath = "/admin"; break;
+      case "project-wizard": targetPath = "/projects/new"; break;
+      case "builder": targetPath = "/builder"; break;
+      case "published": targetPath = `/s/${options.slug || publishedSlug}`; break;
+      default: targetPath = "/";
+    }
+    window.history.pushState({}, "", targetPath);
+  };
 
   const navigateToPublished = (slug) => {
     setPublishedSlug(slug);
@@ -66,8 +96,7 @@ function AppContent() {
   };
 
   const navigateToHome = () => {
-    setActivePage("landing");
-    window.history.pushState({}, "", "/");
+    navigateTo("landing");
   };
 
   // Condition to hide global Navbar and Footer
@@ -80,12 +109,7 @@ function AppContent() {
       {!isPublished && (
         <Navbar
           activePage={activePage}
-          setActivePage={(page) => {
-            setActivePage(page);
-            if (window.location.pathname.startsWith("/s/")) {
-              window.history.pushState({}, "", "/");
-            }
-          }}
+          setActivePage={navigateTo}
           onOpenAuth={() => setIsAuthModalOpen(true)}
         />
       )}
@@ -94,7 +118,7 @@ function AppContent() {
       <main style={{ flex: 1 }}>
         {activePage === "landing" && (
           <LandingPage
-            setActivePage={setActivePage}
+            setActivePage={navigateTo}
             onOpenAuth={() => setIsAuthModalOpen(true)}
             onSelectTemplate={(tplId) => setWizardTemplateId(tplId)}
           />
@@ -102,7 +126,7 @@ function AppContent() {
 
         {activePage === "dashboard" && (
           <DashboardPage
-            setActivePage={setActivePage}
+            setActivePage={navigateTo}
             onOpenPublish={(proj) => setPublishModalProject(proj)}
             onOpenShare={(slug) => setShareModalSlug(slug)}
             onOpenAnalytics={(proj) => setAnalyticsModalProject(proj)}
@@ -111,14 +135,14 @@ function AppContent() {
 
         {activePage === "project-wizard" && (
           <ProjectWizardPage
-            setActivePage={setActivePage}
+            setActivePage={navigateTo}
             selectedTemplateId={wizardTemplateId}
           />
         )}
 
         {activePage === "builder" && (
           <WebsiteBuilderPage
-            setActivePage={setActivePage}
+            setActivePage={navigateTo}
             onOpenPublish={(proj) => setPublishModalProject(proj)}
             onOpenShare={(slug) => setShareModalSlug(slug)}
             onOpenAnalytics={(proj) => setAnalyticsModalProject(proj)}
@@ -126,30 +150,30 @@ function AppContent() {
         )}
 
         {activePage === "memories" && (
-          <MemoryLibraryPage setActivePage={setActivePage} />
+          <MemoryLibraryPage setActivePage={navigateTo} />
         )}
 
         {activePage === "important-dates" && (
-          <ImportantDatesPage setActivePage={setActivePage} />
+          <ImportantDatesPage setActivePage={navigateTo} />
         )}
 
         {activePage === "templates" && (
           <TemplatesPage
-            setActivePage={setActivePage}
+            setActivePage={navigateTo}
             onSelectTemplate={(tplId) => setWizardTemplateId(tplId)}
           />
         )}
 
         {activePage === "billing" && (
-          <BillingPage setActivePage={setActivePage} />
+          <BillingPage setActivePage={navigateTo} />
         )}
 
         {activePage === "settings" && (
-          <SettingsPage setActivePage={setActivePage} />
+          <SettingsPage setActivePage={navigateTo} />
         )}
 
         {activePage === "admin" && (
-          <AdminPage setActivePage={setActivePage} />
+          <AdminPage setActivePage={navigateTo} />
         )}
 
         {activePage === "published" && (
@@ -162,7 +186,7 @@ function AppContent() {
 
       {/* Global Footer (Hidden in Builder and Published Site) */}
       {!isBuilder && !isPublished && (
-        <Footer setActivePage={setActivePage} />
+        <Footer setActivePage={navigateTo} />
       )}
 
       {/* Modals */}

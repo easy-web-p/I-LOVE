@@ -16,7 +16,9 @@ import {
   Clock,
   Heart,
   HardDrive,
-  BarChart3
+  BarChart3,
+  Search,
+  ArrowRight
 } from "lucide-react";
 
 export function DashboardPage({ setActivePage, onOpenPublish, onOpenShare, onOpenAnalytics }) {
@@ -32,6 +34,7 @@ export function DashboardPage({ setActivePage, onOpenPublish, onOpenShare, onOpe
   } = useApp();
 
   const [activeMenuId, setActiveMenuId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Calculate upcoming days
   const getDaysDiff = (dateStr) => {
@@ -91,7 +94,18 @@ export function DashboardPage({ setActivePage, onOpenPublish, onOpenShare, onOpe
             </p>
           </div>
 
-          <div style={{ display: "flex", gap: "10px" }}>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+            <div style={{ position: "relative", minWidth: "220px" }}>
+              <Search size={15} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)" }} />
+              <input
+                type="text"
+                placeholder="ค้นหาเว็บไซต์ หรือ แท็ก..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="form-input"
+                style={{ paddingLeft: "34px", paddingRight: "10px", height: "38px", fontSize: "13.5px" }}
+              />
+            </div>
             <button
               onClick={() => setActivePage("project-wizard")}
               className="btn btn-primary"
@@ -240,7 +254,14 @@ export function DashboardPage({ setActivePage, onOpenPublish, onOpenShare, onOpe
               gap: "22px"
             }}
           >
-            {projects.map((proj) => (
+            {projects
+              .filter(
+                (p) =>
+                  !searchQuery ||
+                  p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  (p.slug && p.slug.toLowerCase().includes(searchQuery.toLowerCase()))
+              )
+              .map((proj) => (
               <div
                 key={proj.id}
                 className="card card-hoverable"
@@ -423,6 +444,97 @@ export function DashboardPage({ setActivePage, onOpenPublish, onOpenShare, onOpe
           </div>
         </div>
 
+        {/* 5. Recent Memories Section (Section 6) */}
+        <div style={{ marginBottom: "40px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+            <div>
+              <h2 style={{ fontSize: "22px", color: "var(--color-text-primary)", marginBottom: "4px" }}>
+                ความทรงจำล่าสุด ({memories.length})
+              </h2>
+              <p style={{ fontSize: "14px", color: "var(--color-text-secondary)" }}>
+                คลังเรื่องราวและภาพถ่ายที่พร้อมนำไปสร้างเป็นเว็บไซต์ได้ทุกเมื่อ
+              </p>
+            </div>
+            <button
+              onClick={() => setActivePage("memories")}
+              className="btn btn-ghost btn-sm"
+              style={{ color: "var(--color-secondary)", fontWeight: 600 }}
+            >
+              ดูทั้งหมด <ArrowRight size={14} />
+            </button>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+              gap: "20px"
+            }}
+          >
+            {memories.slice(0, 3).map((mem) => (
+              <div
+                key={mem.id}
+                className="card card-hoverable"
+                onClick={() => setActivePage("memories")}
+                style={{
+                  borderRadius: "var(--radius-md)",
+                  overflow: "hidden",
+                  cursor: "pointer",
+                  display: "flex",
+                  flexDirection: "column"
+                }}
+              >
+                <div style={{ height: "150px", overflow: "hidden", position: "relative" }}>
+                  <img
+                    src={mem.images?.[0] || "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600"}
+                    alt={mem.title}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                  <span
+                    className="badge badge-pill-primary"
+                    style={{
+                      position: "absolute",
+                      top: "10px",
+                      left: "10px",
+                      fontSize: "11px",
+                      background: "rgba(255, 255, 255, 0.95)"
+                    }}
+                  >
+                    📅 {mem.eventDate}
+                  </span>
+                </div>
+                <div style={{ padding: "16px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                  <div>
+                    <h3 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "6px", color: "var(--color-text-primary)" }}>
+                      {mem.title}
+                    </h3>
+                    <p
+                      style={{
+                        fontSize: "13.5px",
+                        color: "var(--color-text-secondary)",
+                        lineHeight: 1.5,
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden"
+                      }}
+                    >
+                      {mem.description}
+                    </p>
+                  </div>
+                  <div style={{ marginTop: "12px", display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                    {(mem.tags || []).map((t, i) => (
+                      <span key={i} style={{ fontSize: "11px", color: "var(--color-text-muted)", background: "var(--color-bg)", padding: "2px 8px", borderRadius: "4px" }}>
+                        #{t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* 5. Storage Quota Widget */}
         <div
           className="card"
@@ -458,6 +570,17 @@ export function DashboardPage({ setActivePage, onOpenPublish, onOpenShare, onOpe
               <div style={{ fontSize: "12.5px", color: "var(--color-text-secondary)" }}>
                 ใช้ไปแล้ว 38 MB จากทั้งหมด 100 MB (แผน Free)
               </div>
+            </div>
+          </div>
+
+          {/* Visual Progress Bar */}
+          <div style={{ width: "100%", maxWidth: "240px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginBottom: "6px", color: "var(--color-text-secondary)" }}>
+              <span>ใช้ไป 38%</span>
+              <span>เหลือ 62 MB</span>
+            </div>
+            <div style={{ height: "8px", background: "var(--color-border)", borderRadius: "4px", overflow: "hidden" }}>
+              <div style={{ width: "38%", height: "100%", background: "var(--color-primary)", borderRadius: "4px" }} />
             </div>
           </div>
 

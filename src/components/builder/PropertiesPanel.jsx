@@ -10,11 +10,18 @@ import {
   AlignRight,
   Upload,
   Plus,
-  Trash2
+  Trash2,
+  FolderHeart,
+  Calendar,
+  X,
+  Check
 } from "lucide-react";
+import { useApp } from "../../context/AppContext";
 
 export function PropertiesPanel({ selectedSection, onUpdateSection }) {
+  const { memories, showToast } = useApp();
   const [activeTab, setActiveTab] = useState("content"); // 'content' | 'style' | 'animation' | 'advanced'
+  const [isMemoryPickerOpen, setIsMemoryPickerOpen] = useState(false);
 
   if (!selectedSection) {
     return (
@@ -153,6 +160,190 @@ export function PropertiesPanel({ selectedSection, onUpdateSection }) {
         {/* ==================== TAB 1: CONTENT ==================== */}
         {activeTab === "content" && (
           <div>
+            {/* Quick Memory Importer Banner (UX Section 12) */}
+            {["HERO", "MESSAGE", "GALLERY", "TIMELINE", "IMAGE", "MAP", "IMPORTANT_DATE"].includes(selectedSection.type) && (
+              <div
+                style={{
+                  marginBottom: "16px",
+                  padding: "10px 12px",
+                  background: "linear-gradient(135deg, rgba(232, 93, 142, 0.08) 0%, rgba(139, 124, 246, 0.08) 100%)",
+                  borderRadius: "var(--radius-md)",
+                  border: "1px dashed var(--color-primary)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "8px"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <FolderHeart size={16} color="var(--color-primary)" />
+                  <span style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--color-text-primary)" }}>
+                    ดึงจากคลังความทรงจำ
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsMemoryPickerOpen(true)}
+                  className="btn btn-secondary btn-sm"
+                  style={{ fontSize: "11.5px", padding: "4px 10px", color: "var(--color-primary)" }}
+                >
+                  เลือกเรื่องราว
+                </button>
+              </div>
+            )}
+
+            {/* Memory Picker Modal */}
+            {isMemoryPickerOpen && (
+              <div
+                className="modal-overlay"
+                onClick={() => setIsMemoryPickerOpen(false)}
+                style={{ zIndex: 10000 }}
+              >
+                <div
+                  className="modal-container"
+                  onClick={(e) => e.stopPropagation()}
+                  style={{ maxWidth: "480px", maxHeight: "80vh", display: "flex", flexDirection: "column" }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <FolderHeart size={20} color="var(--color-primary)" />
+                      <h3 style={{ fontSize: "17px", fontWeight: 700 }}>เลือกความทรงจำมาใส่ Section</h3>
+                    </div>
+                    <button
+                      onClick={() => setIsMemoryPickerOpen(false)}
+                      className="btn-icon"
+                      style={{ width: "28px", height: "28px" }}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  <p style={{ fontSize: "13px", color: "var(--color-text-secondary)", marginBottom: "14px" }}>
+                    แตะที่ความทรงจำที่ต้องการ ข้อความและรูปภาพจะถูกนำมาใส่ใน {selectedSection.name || selectedSection.type} อัตโนมัติ
+                  </p>
+
+                  <div style={{ overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {memories.map((mem) => (
+                      <div
+                        key={mem.id}
+                        onClick={() => {
+                          if (selectedSection.type === "HERO") {
+                            onUpdateSection({
+                              ...selectedSection,
+                              content: {
+                                ...selectedSection.content,
+                                title: mem.title,
+                                subtitle: mem.description,
+                                imageURL: mem.images?.[0] || selectedSection.content.imageURL
+                              }
+                            });
+                          } else if (selectedSection.type === "MESSAGE") {
+                            onUpdateSection({
+                              ...selectedSection,
+                              content: {
+                                ...selectedSection.content,
+                                heading: mem.title,
+                                message: mem.description,
+                                date: mem.eventDate
+                              }
+                            });
+                          } else if (selectedSection.type === "GALLERY") {
+                            const newImgs = (mem.images || []).map((img) => ({ url: img, caption: mem.title }));
+                            onUpdateSection({
+                              ...selectedSection,
+                              content: {
+                                ...selectedSection.content,
+                                title: mem.title,
+                                images: [...(selectedSection.content.images || []), ...newImgs]
+                              }
+                            });
+                          } else if (selectedSection.type === "TIMELINE") {
+                            const newEvt = {
+                              title: mem.title,
+                              description: mem.description,
+                              date: mem.eventDate,
+                              image: mem.images?.[0] || ""
+                            };
+                            onUpdateSection({
+                              ...selectedSection,
+                              content: {
+                                ...selectedSection.content,
+                                events: [...(selectedSection.content.events || []), newEvt]
+                              }
+                            });
+                          } else if (selectedSection.type === "IMAGE") {
+                            onUpdateSection({
+                              ...selectedSection,
+                              content: {
+                                ...selectedSection.content,
+                                url: mem.images?.[0] || selectedSection.content.url,
+                                caption: mem.title
+                              }
+                            });
+                          } else if (selectedSection.type === "MAP") {
+                            onUpdateSection({
+                              ...selectedSection,
+                              content: {
+                                ...selectedSection.content,
+                                locationName: mem.location?.name || mem.title,
+                                note: mem.description
+                              }
+                            });
+                          } else if (selectedSection.type === "IMPORTANT_DATE") {
+                            onUpdateSection({
+                              ...selectedSection,
+                              content: {
+                                ...selectedSection.content,
+                                title: mem.title,
+                                date: mem.eventDate,
+                                description: mem.description
+                              }
+                            });
+                          }
+                          setIsMemoryPickerOpen(false);
+                          showToast(`นำเข้าเรื่องราว "${mem.title}" เรียบร้อยแล้ว ✨`);
+                        }}
+                        className="card card-hoverable"
+                        style={{
+                          padding: "10px",
+                          display: "flex",
+                          gap: "12px",
+                          alignItems: "center",
+                          cursor: "pointer",
+                          borderRadius: "var(--radius-sm)"
+                        }}
+                      >
+                        <img
+                          src={mem.images?.[0] || "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=120"}
+                          alt={mem.title}
+                          style={{ width: "64px", height: "64px", objectFit: "cover", borderRadius: "6px" }}
+                        />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 600, fontSize: "14px", color: "var(--color-text-primary)", marginBottom: "2px" }}>
+                            {mem.title}
+                          </div>
+                          <div style={{ fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "4px" }}>
+                            📅 {mem.eventDate} • {mem.category}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: "12px",
+                              color: "var(--color-text-secondary)",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis"
+                            }}
+                          >
+                            {mem.description}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* HERO Content Fields */}
             {selectedSection.type === "HERO" && (
               <>

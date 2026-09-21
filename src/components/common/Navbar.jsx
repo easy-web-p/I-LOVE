@@ -13,13 +13,26 @@ import {
   Menu,
   X,
   LayoutDashboard,
-  Shield
+  Shield,
+  Bell,
+  CheckCheck,
+  Trash2,
+  ExternalLink
 } from "lucide-react";
 
 export function Navbar({ activePage, setActivePage, onOpenAuth }) {
-  const { currentUser, logout } = useApp();
+  const {
+    currentUser,
+    logout,
+    notifications,
+    unreadNotificationsCount,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+    deleteNotification
+  } = useApp();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
 
   const navLinks = [
     { id: "landing", label: "หน้าแรก", icon: Sparkles },
@@ -152,7 +165,167 @@ export function Navbar({ activePage, setActivePage, onOpenAuth }) {
             <span className="hide-on-mobile">สร้างเว็บไซต์</span>
           </button>
 
-          {/* User Profile / Login */}
+          {/* Notification Bell (Section 21) */}
+          {currentUser && (
+            <div style={{ position: "relative" }}>
+              <button
+                onClick={() => {
+                  setNotificationDropdownOpen(!notificationDropdownOpen);
+                  setUserDropdownOpen(false);
+                }}
+                className="btn-icon"
+                style={{
+                  position: "relative",
+                  width: "38px",
+                  height: "38px",
+                  borderRadius: "50%",
+                  background: notificationDropdownOpen ? "var(--color-primary-light)" : "var(--color-surface)",
+                  border: "1px solid var(--color-border)",
+                  color: notificationDropdownOpen ? "var(--color-primary)" : "var(--color-text-secondary)"
+                }}
+                title="การแจ้งเตือน"
+              >
+                <Bell size={18} />
+                {unreadNotificationsCount > 0 && (
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: "-2px",
+                      right: "-2px",
+                      background: "var(--color-primary)",
+                      color: "#FFF",
+                      borderRadius: "10px",
+                      padding: "1px 5px",
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      lineHeight: 1.2,
+                      boxShadow: "0 2px 6px rgba(232, 93, 142, 0.5)",
+                      animation: "animatePulseSubtle 2s infinite"
+                    }}
+                  >
+                    {unreadNotificationsCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Dropdown Box */}
+              {notificationDropdownOpen && (
+                <div
+                  className="card"
+                  style={{
+                    position: "absolute",
+                    top: "46px",
+                    right: 0,
+                    width: "330px",
+                    maxHeight: "420px",
+                    overflow: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                    zIndex: 9999,
+                    boxShadow: "var(--shadow-card)",
+                    borderRadius: "var(--radius-md)",
+                    animation: "fadeIn 0.15s ease-out"
+                  }}
+                >
+                  <div
+                    style={{
+                      padding: "12px 14px",
+                      borderBottom: "1px solid var(--color-border)",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      background: "var(--color-surface)"
+                    }}
+                  >
+                    <div style={{ fontWeight: 600, fontSize: "14px", color: "var(--color-text-primary)" }}>
+                      การแจ้งเตือน ({notifications.length})
+                    </div>
+                    {unreadNotificationsCount > 0 && (
+                      <button
+                        onClick={markAllNotificationsAsRead}
+                        className="btn-ghost"
+                        style={{
+                          fontSize: "11.5px",
+                          color: "var(--color-primary)",
+                          padding: "2px 6px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px"
+                        }}
+                      >
+                        <CheckCheck size={13} /> อ่านหมดแล้ว
+                      </button>
+                    )}
+                  </div>
+
+                  <div style={{ overflowY: "auto", flex: 1, padding: "6px" }}>
+                    {notifications.length === 0 ? (
+                      <div style={{ padding: "30px 10px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px" }}>
+                        ไม่มีการแจ้งเตือนใหม่
+                      </div>
+                    ) : (
+                      notifications.map((notif) => (
+                        <div
+                          key={notif.id}
+                          onClick={() => {
+                            markNotificationAsRead(notif.id);
+                            if (notif.relatedResource?.type === "IMPORTANT_DATE") {
+                              setActivePage("important-dates");
+                              setNotificationDropdownOpen(false);
+                            } else if (notif.relatedResource?.type === "PROJECT") {
+                              setActivePage("dashboard");
+                              setNotificationDropdownOpen(false);
+                            }
+                          }}
+                          style={{
+                            padding: "10px",
+                            borderRadius: "var(--radius-sm)",
+                            marginBottom: "4px",
+                            cursor: "pointer",
+                            background: notif.read ? "transparent" : "rgba(232, 93, 142, 0.06)",
+                            borderLeft: notif.read ? "3px solid transparent" : "3px solid var(--color-primary)",
+                            display: "flex",
+                            gap: "10px",
+                            alignItems: "flex-start",
+                            transition: "background 0.15s ease"
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-bg)")}
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.background = notif.read ? "transparent" : "rgba(232, 93, 142, 0.06)")
+                          }
+                        >
+                          <div style={{ fontSize: "18px", marginTop: "2px" }}>
+                            {notif.type === "IMPORTANT_DATE_REMINDER" ? "💍" : notif.type === "MILESTONE_VIEW" ? "🎉" : "💌"}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: "13px", fontWeight: notif.read ? 500 : 700, color: "var(--color-text-primary)", marginBottom: "2px" }}>
+                              {notif.title}
+                            </div>
+                            <div style={{ fontSize: "12px", color: "var(--color-text-secondary)", lineHeight: 1.4, marginBottom: "4px" }}>
+                              {notif.message}
+                            </div>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "10.5px", color: "var(--color-text-muted)" }}>
+                              <span>{new Date(notif.createdAt).toLocaleDateString("th-TH")}</span>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteNotification(notif.id);
+                                }}
+                                style={{ background: "none", border: "none", color: "var(--color-text-muted)", cursor: "pointer" }}
+                                title="ลบ"
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           {currentUser ? (
             <div style={{ position: "relative" }}>
               <div

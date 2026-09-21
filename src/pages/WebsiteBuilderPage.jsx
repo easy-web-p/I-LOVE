@@ -18,7 +18,11 @@ import {
   X,
   Layers,
   Sliders,
-  BarChart3
+  BarChart3,
+  Undo2,
+  Redo2,
+  ZoomIn,
+  ZoomOut
 } from "lucide-react";
 
 export function WebsiteBuilderPage({ setActivePage, onOpenPublish, onOpenShare, onOpenAnalytics }) {
@@ -31,6 +35,11 @@ export function WebsiteBuilderPage({ setActivePage, onOpenPublish, onOpenShare, 
   const [deviceMode, setDeviceMode] = useState("desktop"); // 'desktop' | 'tablet' | 'mobile'
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isFullscreenPreview, setIsFullscreenPreview] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(100); // 50, 75, 100, 125
+
+  // Undo / Redo History Stack (Section 11)
+  const [history, setHistory] = useState([activeProject?.sections || []]);
+  const [historyIndex, setHistoryIndex] = useState(0);
 
   // Mobile Bottom Sheet State (Section 21 Mobile Builder)
   const [mobileActiveDrawer, setMobileActiveDrawer] = useState(null); // 'sections' | 'properties' | null
@@ -49,9 +58,34 @@ export function WebsiteBuilderPage({ setActivePage, onOpenPublish, onOpenShare, 
   const sections = activeProject.sections || [];
   const selectedSection = sections.find((s) => s.id === selectedSectionId) || sections[0];
 
+  const pushHistory = (newSecs) => {
+    const nextHistory = history.slice(0, historyIndex + 1);
+    nextHistory.push(newSecs);
+    if (nextHistory.length > 25) nextHistory.shift();
+    setHistory(nextHistory);
+    setHistoryIndex(nextHistory.length - 1);
+  };
+
+  const handleUndo = () => {
+    if (historyIndex > 0) {
+      const prevIdx = historyIndex - 1;
+      setHistoryIndex(prevIdx);
+      updateProject({ sections: history[prevIdx] }, false);
+    }
+  };
+
+  const handleRedo = () => {
+    if (historyIndex < history.length - 1) {
+      const nextIdx = historyIndex + 1;
+      setHistoryIndex(nextIdx);
+      updateProject({ sections: history[nextIdx] }, false);
+    }
+  };
+
   // Section Operations
   const handleUpdateSection = (updatedSection) => {
     const updatedSections = sections.map((s) => (s.id === updatedSection.id ? updatedSection : s));
+    pushHistory(updatedSections);
     updateProject({ sections: updatedSections });
   };
 
@@ -166,63 +200,127 @@ export function WebsiteBuilderPage({ setActivePage, onOpenPublish, onOpenShare, 
             <Check size={13} />
             {saveStatus === "saving" ? "กำลังบันทึก..." : "บันทึกแล้ว"}
           </span>
+          {/* Undo / Redo Actions */}
+          <div style={{ display: "flex", alignItems: "center", gap: "2px" }}>
+            <button
+              onClick={handleUndo}
+              disabled={historyIndex <= 0}
+              className="btn-icon"
+              style={{
+                width: "30px",
+                height: "30px",
+                opacity: historyIndex <= 0 ? 0.35 : 0.9
+              }}
+              title="ย้อนกลับ (Undo) Ctrl+Z"
+            >
+              <Undo2 size={15} />
+            </button>
+            <button
+              onClick={handleRedo}
+              disabled={historyIndex >= history.length - 1}
+              className="btn-icon"
+              style={{
+                width: "30px",
+                height: "30px",
+                opacity: historyIndex >= history.length - 1 ? 0.35 : 0.9
+              }}
+              title="ทำซ้ำ (Redo) Ctrl+Y"
+            >
+              <Redo2 size={15} />
+            </button>
+          </div>
         </div>
 
-        {/* Center: Device Viewport Switcher */}
-        <div
-          style={{
-            display: "none",
-            alignItems: "center",
-            background: "#EDE4E9",
-            borderRadius: "var(--radius-pill)",
-            padding: "3px"
-          }}
-          className="device-switcher"
-        >
-          <style>{`
-            @media (min-width: 900px) {
-              .device-switcher { display: flex !important; }
-            }
-          `}</style>
-          <button
-            onClick={() => setDeviceMode("desktop")}
-            className="btn-icon"
+        {/* Center: Device Viewport & Zoom Controls */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div
             style={{
-              width: "32px",
-              height: "32px",
-              background: deviceMode === "desktop" ? "#FFF" : "transparent",
-              color: deviceMode === "desktop" ? "var(--color-primary)" : "var(--color-text-secondary)"
+              display: "none",
+              alignItems: "center",
+              background: "#EDE4E9",
+              borderRadius: "var(--radius-pill)",
+              padding: "3px"
             }}
-            title="มุมมองเดสก์ท็อป"
+            className="device-switcher"
           >
-            <Monitor size={16} />
-          </button>
-          <button
-            onClick={() => setDeviceMode("tablet")}
-            className="btn-icon"
+            <style>{`
+              @media (min-width: 900px) {
+                .device-switcher { display: flex !important; }
+              }
+            `}</style>
+            <button
+              onClick={() => setDeviceMode("desktop")}
+              className="btn-icon"
+              style={{
+                width: "32px",
+                height: "32px",
+                background: deviceMode === "desktop" ? "#FFF" : "transparent",
+                color: deviceMode === "desktop" ? "var(--color-primary)" : "var(--color-text-secondary)"
+              }}
+              title="มุมมองเดสก์ท็อป"
+            >
+              <Monitor size={16} />
+            </button>
+            <button
+              onClick={() => setDeviceMode("tablet")}
+              className="btn-icon"
+              style={{
+                width: "32px",
+                height: "32px",
+                background: deviceMode === "tablet" ? "#FFF" : "transparent",
+                color: deviceMode === "tablet" ? "var(--color-primary)" : "var(--color-text-secondary)"
+              }}
+              title="มุมมองแท็บเล็ต"
+            >
+              <Tablet size={16} />
+            </button>
+            <button
+              onClick={() => setDeviceMode("mobile")}
+              className="btn-icon"
+              style={{
+                width: "32px",
+                height: "32px",
+                background: deviceMode === "mobile" ? "#FFF" : "transparent",
+                color: deviceMode === "mobile" ? "var(--color-primary)" : "var(--color-text-secondary)"
+              }}
+              title="มุมมองสมาร์ตโฟน"
+            >
+              <Smartphone size={16} />
+            </button>
+          </div>
+
+          {/* Zoom Level Switcher */}
+          <div
             style={{
-              width: "32px",
-              height: "32px",
-              background: deviceMode === "tablet" ? "#FFF" : "transparent",
-              color: deviceMode === "tablet" ? "var(--color-primary)" : "var(--color-text-secondary)"
+              display: "none",
+              alignItems: "center",
+              gap: "4px",
+              background: "rgba(0,0,0,0.04)",
+              borderRadius: "var(--radius-pill)",
+              padding: "2px 8px"
             }}
-            title="มุมมองแท็บเล็ต"
+            className="hide-on-mobile"
           >
-            <Tablet size={16} />
-          </button>
-          <button
-            onClick={() => setDeviceMode("mobile")}
-            className="btn-icon"
-            style={{
-              width: "32px",
-              height: "32px",
-              background: deviceMode === "mobile" ? "#FFF" : "transparent",
-              color: deviceMode === "mobile" ? "var(--color-primary)" : "var(--color-text-secondary)"
-            }}
-            title="มุมมองสมาร์ตโฟน"
-          >
-            <Smartphone size={16} />
-          </button>
+            <button
+              onClick={() => setZoomLevel((z) => Math.max(50, z - 25))}
+              className="btn-icon"
+              style={{ width: "24px", height: "24px" }}
+              title="ซูมออก"
+            >
+              <ZoomOut size={13} />
+            </button>
+            <span style={{ fontSize: "11px", fontWeight: 600, minWidth: "36px", textAlign: "center" }}>
+              {zoomLevel}%
+            </span>
+            <button
+              onClick={() => setZoomLevel((z) => Math.min(125, z + 25))}
+              className="btn-icon"
+              style={{ width: "24px", height: "24px" }}
+              title="ซูมเข้า"
+            >
+              <ZoomIn size={13} />
+            </button>
+          </div>
         </div>
 
         {/* Right: Actions (Preview & Publish) */}
@@ -293,8 +391,13 @@ export function WebsiteBuilderPage({ setActivePage, onOpenPublish, onOpenShare, 
         </div>
 
         {/* Center Column: Live Preview Canvas */}
-        <div className="preview-canvas-wrapper">
+        <div className="preview-canvas-wrapper" style={{ overflow: "auto" }}>
           <div
+            style={{
+              transform: `scale(${zoomLevel / 100})`,
+              transformOrigin: "top center",
+              transition: "transform 0.2s ease"
+            }}
             className={
               deviceMode === "mobile"
                 ? "preview-device-mobile"
