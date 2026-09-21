@@ -3,28 +3,66 @@ import { useApp } from "../../context/AppContext";
 import { X, Heart, Mail, Lock, User, ArrowRight, Sparkles } from "lucide-react";
 
 export function AuthModal({ isOpen, onClose }) {
-  const { loginWithEmail, loginWithGoogle } = useApp();
+  const {
+    loginWithEmail,
+    registerWithEmail,
+    loginWithGoogle,
+    loginAsGuest,
+    resetPassword
+  } = useApp();
   const [tab, setTab] = useState("login"); // 'login' | 'register' | 'forgot'
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      loginWithEmail(email, password);
-      setLoading(false);
+    setErrorMessage("");
+
+    let res;
+    if (tab === "register") {
+      res = await registerWithEmail(email, password, name);
+    } else if (tab === "forgot") {
+      res = await resetPassword(email);
+    } else {
+      res = await loginWithEmail(email, password);
+    }
+
+    setLoading(false);
+    if (res && res.success) {
       onClose();
-    }, 500);
+    } else if (res && res.error) {
+      setErrorMessage(res.error);
+    }
   };
 
-  const handleGoogle = () => {
-    loginWithGoogle();
-    onClose();
+  const handleGoogle = async () => {
+    setLoading(true);
+    setErrorMessage("");
+    const res = await loginWithGoogle();
+    setLoading(false);
+    if (res && res.success) {
+      onClose();
+    } else if (res && res.error) {
+      setErrorMessage(res.error);
+    }
+  };
+
+  const handleGuestLogin = async () => {
+    setLoading(true);
+    setErrorMessage("");
+    const res = await loginAsGuest();
+    setLoading(false);
+    if (res && res.success) {
+      onClose();
+    } else if (res && res.error) {
+      setErrorMessage(res.error);
+    }
   };
 
   const handleDemoLogin = () => {
@@ -66,7 +104,7 @@ export function AuthModal({ isOpen, onClose }) {
         </div>
 
         {/* Title */}
-        <div style={{ textAlign: "center", marginBottom: "24px" }}>
+        <div style={{ textAlign: "center", marginBottom: "20px" }}>
           <h2 style={{ fontSize: "22px", color: "var(--color-text-primary)", marginBottom: "6px" }}>
             {tab === "login" && "ยินดีต้อนรับกลับมา"}
             {tab === "register" && "เริ่มต้นสร้างความทรงจำ"}
@@ -78,6 +116,24 @@ export function AuthModal({ isOpen, onClose }) {
             {tab === "forgot" && "กรอกอีเมลเพื่อรับลิงก์ตั้งรหัสผ่านใหม่"}
           </p>
         </div>
+
+        {/* Error Alert Box */}
+        {errorMessage && (
+          <div
+            style={{
+              padding: "10px 14px",
+              background: "#FEE2E2",
+              border: "1px solid #FCA5A5",
+              color: "#B91C1C",
+              borderRadius: "var(--radius-sm)",
+              fontSize: "13px",
+              marginBottom: "16px",
+              textAlign: "center"
+            }}
+          >
+            {errorMessage}
+          </div>
+        )}
 
         {/* Quick Demo Login Button */}
         {tab === "login" && (
@@ -125,6 +181,24 @@ export function AuthModal({ isOpen, onClose }) {
               />
             </svg>
             เข้าสู่ระบบด้วย Google
+          </button>
+        )}
+
+        {/* Guest Login Option (Anonymous Authentication) */}
+        {tab === "login" && (
+          <button
+            type="button"
+            onClick={handleGuestLogin}
+            className="btn btn-ghost"
+            style={{
+              width: "100%",
+              marginBottom: "14px",
+              color: "var(--color-text-secondary)",
+              fontSize: "13px",
+              border: "1px dashed var(--color-border)"
+            }}
+          >
+            👤 ทดลองเข้าใช้งานในฐานะผู้เยี่ยมชม (Guest / ไม่ต้องล็อกอิน)
           </button>
         )}
 

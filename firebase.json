@@ -19,5 +19,20 @@
   },
   "storage": {
     "rules": "storage.rules"
+  },
+  "auth": {
+    "providers": {
+      "anonymous": true,
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "ILOVE",
+        "supportEmail": "may.sujitra@example.com",
+        "authorizedRedirectUris": [
+          "http://localhost",
+          "http://localhost:5173",
+          "https://ilove-25327.firebaseapp.com"
+        ]
+      }
+    }
   }
 }
