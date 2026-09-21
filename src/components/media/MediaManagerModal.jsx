@@ -9,12 +9,15 @@ import {
   Search,
   HardDrive
 } from "lucide-react";
+import { uploadMediaToStorage } from "../../services/storage";
 
 export function MediaManagerModal({ isOpen, onClose, onSelectImage }) {
-  const { memories, showToast } = useApp();
+  const { currentUser, memories, showToast } = useApp();
 
   const [activeTab, setActiveTab] = useState("memories"); // 'memories' | 'presets' | 'upload'
   const [searchQuery, setSearchQuery] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   if (!isOpen) return null;
 
@@ -52,11 +55,11 @@ export function MediaManagerModal({ isOpen, onClose, onSelectImage }) {
     }
   ];
 
-  // Images from user's memories
+  // Images extracted from user memories
   const memoryImages = memories.flatMap((m) =>
     (m.images || []).map((imgUrl) => ({
-      title: m.title,
       url: imgUrl,
+      title: m.title,
       date: m.eventDate
     }))
   );
@@ -69,7 +72,7 @@ export function MediaManagerModal({ isOpen, onClose, onSelectImage }) {
     onClose();
   };
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -79,9 +82,25 @@ export function MediaManagerModal({ isOpen, onClose, onSelectImage }) {
       return;
     }
 
-    // Object URL for client preview
-    const objectUrl = URL.createObjectURL(file);
-    handleChoose(objectUrl);
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    const res = await uploadMediaToStorage(
+      file,
+      currentUser?.uid || "guest",
+      "images",
+      (pct) => setUploadProgress(pct)
+    );
+
+    setIsUploading(false);
+
+    if (res.success && res.url) {
+      handleChoose(res.url);
+    } else {
+      const objectUrl = URL.createObjectURL(file);
+      showToast("อัปโหลดขึ้น Cloud ไม่สำเร็จ ใช้พรีวิวรูปชั่วคราว", "info");
+      handleChoose(objectUrl);
+    }
   };
 
   return (
@@ -226,33 +245,46 @@ export function MediaManagerModal({ isOpen, onClose, onSelectImage }) {
         {/* Tab 3: Upload New File */}
         {activeTab === "upload" && (
           <div style={{ textAlign: "center", padding: "36px 20px" }}>
-            <label
-              style={{
-                display: "inline-flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "36px 40px",
-                borderRadius: "var(--radius-lg)",
-                border: "2px dashed var(--color-border)",
-                cursor: "pointer",
-                background: "#FAF6F8"
-              }}
-            >
-              <Upload size={36} color="var(--color-primary)" style={{ marginBottom: "12px" }} />
-              <span style={{ fontSize: "16px", fontWeight: 600, color: "var(--color-text-primary)", marginBottom: "4px" }}>
-                คลิกเพื่ออัปโหลดรูปภาพจากอุปกรณ์
-              </span>
-              <span style={{ fontSize: "13px", color: "var(--color-text-muted)" }}>
-                รองรับ JPG, PNG, WEBP (สูงสุดไม่เกิน 10MB)
-              </span>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileUpload}
-                style={{ display: "none" }}
-              />
-            </label>
+            {isUploading ? (
+              <div style={{ padding: "30px 20px" }}>
+                <div style={{ fontSize: "36px", marginBottom: "12px", animation: "pulse 1.2s infinite" }}>☁️</div>
+                <div style={{ fontSize: "16px", fontWeight: 600, color: "var(--color-text-primary)", marginBottom: "8px" }}>
+                  กำลังอัปโหลดขึ้น Firebase Cloud Storage ({uploadProgress}%)
+                </div>
+                <div style={{ width: "100%", maxWidth: "320px", height: "8px", background: "#F3F4F6", borderRadius: "99px", margin: "0 auto", overflow: "hidden" }}>
+                  <div style={{ width: `${uploadProgress}%`, height: "100%", background: "var(--color-primary)", transition: "width 0.2s ease" }} />
+                </div>
+              </div>
+            ) : (
+              <label
+                style={{
+                  display: "inline-flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "36px 40px",
+                  borderRadius: "var(--radius-lg)",
+                  border: "2px dashed var(--color-border)",
+                  cursor: "pointer",
+                  background: "#FAF6F8"
+                }}
+              >
+                <Upload size={36} color="var(--color-primary)" style={{ marginBottom: "12px" }} />
+                <span style={{ fontSize: "16px", fontWeight: 600, color: "var(--color-text-primary)", marginBottom: "4px" }}>
+                  คลิกเพื่ออัปโหลดรูปภาพจากอุปกรณ์
+                </span>
+                <span style={{ fontSize: "13px", color: "var(--color-text-muted)" }}>
+                  จัดเก็บบน Firebase Cloud Storage ถาวร (สูงสุดไม่เกิน 10MB)
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  style={{ display: "none" }}
+                  disabled={isUploading}
+                />
+              </label>
+            )}
           </div>
         )}
       </div>

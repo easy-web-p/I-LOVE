@@ -557,6 +557,15 @@ export function AppProvider({ children }) {
   const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0];
 
   const createProject = (initialData) => {
+    // Entitlements Check: Maximum Projects Limit
+    if (projects.length >= entitlements.maxProjects) {
+      showToast(
+        `คุณสร้างโปรเจกต์ครบโควตาของแพ็กเกจ ${currentUser?.plan || "FREE"} แล้ว (${entitlements.maxProjects} โปรเจกต์) กรุณาอัปเกรดเพื่อสร้างเพิ่ม`,
+        "error"
+      );
+      return null;
+    }
+
     const template = TEMPLATES.find((t) => t.id === initialData.templateId) || TEMPLATES[0];
     const newProject = {
       id: "proj-" + Date.now(),

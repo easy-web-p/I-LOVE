@@ -15,7 +15,7 @@ import {
 import { hashPassword } from "../../utils/security";
 
 export function PublishModal({ isOpen, onClose, project, onPublishedSuccess }) {
-  const { publishProject } = useApp();
+  const { publishProject, entitlements, showToast } = useApp();
 
   const [slug, setSlug] = useState(project?.slug || `love-${Date.now().toString(36)}`);
   const [visibility, setVisibility] = useState(project?.visibility || "UNLISTED");
@@ -34,6 +34,18 @@ export function PublishModal({ isOpen, onClose, project, onPublishedSuccess }) {
 
   const handlePublish = async (e) => {
     e.preventDefault();
+
+    // Entitlements enforcement
+    if (visibility === "PASSWORD" && !entitlements?.canPasswordProtect) {
+      showToast("การล็อกรหัสผ่านเว็บไซต์สำหรับสมาชิก PREMIUM ขึ้นไป กรุณาอัปเกรดแพ็กเกจ", "error");
+      return;
+    }
+
+    if (revealMode === "SCHEDULED" && !entitlements?.canScheduleReveal) {
+      showToast("การตั้งเวลานับถอยหลังเปิดเว็บสำหรับสมาชิก PREMIUM ขึ้นไป กรุณาอัปเกรดแพ็กเกจ", "error");
+      return;
+    }
+
     setLoading(true);
 
     let passwordHash = null;
